@@ -8,7 +8,7 @@ describe('convertToOpenAPI', () => {
     plural: 'publishers',
     parents: [],
     children: [],
-    patternElems: ['publishers', '{publisher}'],
+    patternElems: [],
     schema: {
       type: 'object',
       properties: {
@@ -32,8 +32,8 @@ describe('convertToOpenAPI', () => {
     singular: 'book',
     plural: 'books',
     parents: [publisher],
+    patternElems: [],
     children: [],
-    patternElems: ['books', '{book}'],
     schema: {
       type: 'object',
       properties: {
@@ -74,8 +74,8 @@ describe('convertToOpenAPI', () => {
     singular: 'book-edition',
     plural: 'book-editions',
     parents: [book],
+    patternElems: [],
     children: [],
-    patternElems: ['editions', '{book-edition}'],
     schema: {
       type: 'object',
       properties: {
@@ -155,7 +155,21 @@ describe('convertToOpenAPI', () => {
       const expectedOperations = {
         '/publishers': {
           get: {
-            operationId: 'ListPublisher'
+            operationId: 'ListPublisher',
+            parameters: [
+              {
+                in: 'query',
+                name: 'maxPageSize',
+                required: false,
+                schema: { type: 'integer' }
+              },
+              {
+                in: 'query',
+                name: 'pageToken',
+                required: false,
+                schema: { type: 'string' }
+              }
+            ]
           },
           post: {
             operationId: 'CreatePublisher'
@@ -163,13 +177,40 @@ describe('convertToOpenAPI', () => {
         },
         '/publishers/{publisher}': {
           get: {
-            operationId: 'GetPublisher'
+            operationId: 'GetPublisher',
+            parameters: [
+              {
+                in: 'path',
+                name: 'publisher',
+                required: true,
+                schema: { type: 'string' },
+              }
+            ]
           }
         },
         '/publishers/{publisher}/books': {
           get: {
             operationId: 'ListBook',
             parameters: [
+              {
+                in: 'path',
+                name: 'publisher',
+                required: true,
+                schema: { type: 'string' },
+                xAEPResourceRef: { resource: 'publisher' }
+              },
+              {
+                in: 'query',
+                name: 'maxPageSize',
+                required: false,
+                schema: { type: 'integer' }
+              },
+              {
+                in: 'query',
+                name: 'pageToken',
+                required: false,
+                schema: { type: 'string' }
+              },
               {
                 name: 'skip',
                 in: 'query',
@@ -188,6 +229,13 @@ describe('convertToOpenAPI', () => {
             operationId: 'CreateBook',
             parameters: [
               {
+                in: 'path',
+                name: 'publisher',
+                required: true,
+                schema: { type: 'string' },
+                xAEPResourceRef: { resource: 'publisher' }
+              },
+              {
                 name: 'id',
                 in: 'query',
                 required: false,
@@ -198,10 +246,44 @@ describe('convertToOpenAPI', () => {
         },
         '/publishers/{publisher}/books/{book}': {
           get: {
-            operationId: 'GetBook'
+            operationId: 'GetBook',
+            parameters: [
+              {
+                in: 'path',
+                name: 'publisher',
+                required: true,
+                schema: { type: 'string' },
+                "xAEPResourceRef": {
+                  "resource": "publisher"
+                }
+              },
+              {
+                in: 'path',
+                name: 'book',
+                required: true,
+                schema: { type: 'string' }
+              }
+            ]
           },
           patch: {
             operationId: 'UpdateBook',
+            parameters: [
+              {
+                in: 'path',
+                name: 'publisher',
+                required: true,
+                schema: { type: 'string' },
+                "xAEPResourceRef": {
+                  "resource": "publisher"
+                }
+              },
+              {
+                in: 'path',
+                name: 'book',
+                required: true,
+                schema: { type: 'string' }
+              }
+            ],
             requestBody: {
               required: true,
               content: {
@@ -212,12 +294,52 @@ describe('convertToOpenAPI', () => {
             }
           },
           delete: {
-            operationId: 'DeleteBook'
+            operationId: 'DeleteBook',
+            parameters: [
+              {
+                in: 'path',
+                name: 'publisher',
+                required: true,
+                schema: { type: 'string' },
+                "xAEPResourceRef": {
+                  "resource": "publisher"
+                }
+              },
+              {
+                in: 'path',
+                name: 'book',
+                required: true,
+                schema: { type: 'string' }
+              },
+              {
+                in: 'query',
+                name: 'force',
+                required: false,
+                schema: { type: 'boolean' }
+              }
+            ]
           }
         },
         '/publishers/{publisher}/books/{book}:archive': {
           post: {
             operationId: ':ArchiveBook',
+            parameters: [
+              {
+                in: 'path',
+                name: 'publisher',
+                required: true,
+                schema: { type: 'string' },
+                "xAEPResourceRef": {
+                  "resource": "publisher"
+                }
+              },
+              {
+                in: 'path',
+                name: 'book',
+                required: true,
+                schema: { type: 'string' }
+              }
+            ],
             requestBody: {
               required: true,
               content: {
@@ -243,6 +365,7 @@ describe('convertToOpenAPI', () => {
           expect(actualOp.operationId).toBe(expectedOp.operationId);
 
           if ('parameters' in expectedOp) {
+            console.log(path + " " + method)
             expect(actualOp.parameters).toEqual(expectedOp.parameters);
           }
 
@@ -276,7 +399,6 @@ describe('convertToOpenAPI', () => {
           name: 'database',
           required: true,
           schema: { type: 'string' },
-          xAEPResourceRef: { resource: 'database' }
         }]
       }]);
     });

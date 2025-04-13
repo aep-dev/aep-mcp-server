@@ -12,6 +12,7 @@ import {
   Response
 } from './types';
 import { collectionName } from './resource';
+import { kebabToPascalCase } from '../cases/cases';
 
 export function convertToOpenAPI(api: API): OpenAPI {
   const paths: Record<string, OpenAPIPathItem> = {};
@@ -21,8 +22,7 @@ export function convertToOpenAPI(api: API): OpenAPI {
 
   for (const r of Object.values(api.resources)) {
     const schema = r.schema;
-    const collection = collectionName(r);
-    const parentPWPS = generateParentPatternsWithParams(r);
+    const [collection, parentPWPS] = generateParentPatternsWithParams(r);
 
     if (parentPWPS.length === 0) {
       parentPWPS.push({ pattern: '', params: [] });
@@ -58,11 +58,11 @@ export function convertToOpenAPI(api: API): OpenAPI {
     };
 
     for (const pwp of parentPWPS) {
-      const resourcePath = `${pwp.pattern}/${collection}/{${singular}}`;
+      const resourcePath = `${pwp.pattern}${collection}/{${singular}}`;
       patterns.push(resourcePath.slice(1));
 
       if (r.listMethod) {
-        const listPath = `${pwp.pattern}/${collection}`;
+        const listPath = `${pwp.pattern}${collection}`;
         const responseProperties: Record<string, Schema> = {
           results: {
             type: 'array',
@@ -115,7 +115,7 @@ export function convertToOpenAPI(api: API): OpenAPI {
         }
 
         addMethodToPath(paths, listPath, 'get', {
-          operationId: `List${singular}`,
+          operationId: `List${kebabToPascalCase(singular)}`,
           description: `List method for ${singular}`,
           parameters: params,
           responses: {
@@ -135,7 +135,7 @@ export function convertToOpenAPI(api: API): OpenAPI {
       }
 
       if (r.createMethod) {
-        const createPath = `${pwp.pattern}/${collection}`;
+        const createPath = `${pwp.pattern}${collection}`;
         const params = [...pwp.params];
         if (r.createMethod.supportsUserSettableCreate) {
           params.push({
@@ -147,7 +147,7 @@ export function convertToOpenAPI(api: API): OpenAPI {
         }
 
         addMethodToPath(paths, createPath, 'post', {
-          operationId: `Create${singular}`,
+          operationId: `Create${kebabToPascalCase(singular)}`,
           description: `Create method for ${singular}`,
           parameters: params,
           requestBody: bodyParam,
@@ -159,7 +159,7 @@ export function convertToOpenAPI(api: API): OpenAPI {
 
       if (r.getMethod) {
         addMethodToPath(paths, resourcePath, 'get', {
-          operationId: `Get${singular}`,
+          operationId: `Get${kebabToPascalCase(singular)}`,
           description: `Get method for ${singular}`,
           parameters: [...pwp.params, idParam],
           responses: {
@@ -170,7 +170,7 @@ export function convertToOpenAPI(api: API): OpenAPI {
 
       if (r.updateMethod) {
         addMethodToPath(paths, resourcePath, 'patch', {
-          operationId: `Update${singular}`,
+          operationId: `Update${kebabToPascalCase(singular)}`,
           description: `Update method for ${singular}`,
           parameters: [...pwp.params, idParam],
           requestBody: {
@@ -206,7 +206,7 @@ export function convertToOpenAPI(api: API): OpenAPI {
         }
 
         addMethodToPath(paths, resourcePath, 'delete', {
-          operationId: `Delete${singular}`,
+          operationId: `Delete${kebabToPascalCase(singular)}`,
           description: `Delete method for ${singular}`,
           parameters: params,
           responses: {
@@ -226,9 +226,10 @@ export function convertToOpenAPI(api: API): OpenAPI {
         const methodType = custom.method.toLowerCase();
         const cmPath = `${resourcePath}:${custom.name}`;
         const methodInfo = {
-          operationId: `:${custom.name}${singular}`,
+          operationId: `:${kebabToPascalCase(custom.name)}${kebabToPascalCase(singular)}`,
           description: `Custom method ${custom.name} for ${singular}`,
           parameters: [...pwp.params, idParam],
+          requestBody: {},
           responses: {
             '200': {
               description: 'Successful response',
@@ -240,6 +241,17 @@ export function convertToOpenAPI(api: API): OpenAPI {
             }
           }
         };
+
+        if (custom.method == "POST") {
+          methodInfo.requestBody = {
+            required: true,
+            content: {
+              'application/json': {
+                schema: custom.request
+              }
+            }
+          };
+        }
 
         addMethodToPath(paths, cmPath, methodType, methodInfo);
       }
@@ -280,7 +292,7 @@ export function convertToOpenAPI(api: API): OpenAPI {
   };
 }
 
-export function generateParentPatternsWithParams(resource: Resource): PathWithParams[] {
+export function generateParentPatternsWithParams(resource: Resource): [string, PathWithParams[]] {
   if (resource.patternElems.length > 0) {
     const collection = `/${resource.patternElems[resource.patternElems.length - 2]}`;
     const params: any[] = [];
@@ -295,10 +307,10 @@ export function generateParentPatternsWithParams(resource: Resource): PathWithPa
     }
 
     const pattern = resource.patternElems.slice(0, resource.patternElems.length - 2).join('/');
-    return [{
+    return [collection, [{
       pattern: pattern ? `/${pattern}` : '',
       params
-    }];
+    }]];
   }
 
   const collection = `/${collectionName(resource)}`;
@@ -321,7 +333,7 @@ export function generateParentPatternsWithParams(resource: Resource): PathWithPa
         params: [baseParam]
       });
     } else {
-      const parentPWPS = generateParentPatternsWithParams(parent);
+      const [_, parentPWPS] = generateParentPatternsWithParams(parent);
       for (const parentPWP of parentPWPS) {
         const params = [...parentPWP.params, baseParam];
         const pattern = `${parentPWP.pattern}${basePattern}`;
@@ -330,7 +342,7 @@ export function generateParentPatternsWithParams(resource: Resource): PathWithPa
     }
   }
 
-  return pwps;
+  return [collection, pwps];
 }
 
 function addMethodToPath(
