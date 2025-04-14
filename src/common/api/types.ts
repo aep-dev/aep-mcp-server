@@ -88,6 +88,7 @@ export interface OpenAPI {
   components: {
     schemas: Record<string, Schema>;
   };
+  definitions?: Record<string, Schema>;
 }
 
 export interface Info {
@@ -110,20 +111,160 @@ export interface ServerVariable {
 }
 
 export interface PathItem {
-  get?: any;
-  post?: any;
-  patch?: any;
-  put?: any;
-  delete?: any;
+  get?: {
+    operationId?: string;
+    parameters?: Array<{
+      in: string;
+      name: string;
+      required: boolean;
+      schema: Schema;
+      xAEPResourceRef?: {
+        resource: string;
+      };
+    }>;
+    responses: Record<string, {
+      description: string;
+      content?: {
+        'application/json': {
+          schema: Schema;
+        };
+      };
+    }>;
+  };
+  post?: {
+    operationId?: string;
+    parameters?: Array<{
+      in: string;
+      name: string;
+      required: boolean;
+      schema: Schema;
+      xAEPResourceRef?: {
+        resource: string;
+      };
+    }>;
+    requestBody?: {
+      required: boolean;
+      content: {
+        'application/json': {
+          schema: Schema;
+        };
+      };
+    };
+    responses: Record<string, {
+      description: string;
+      content?: {
+        'application/json': {
+          schema: Schema;
+        };
+      };
+    }>;
+  };
+  put?: {
+    parameters?: Array<{
+      in: string;
+      name: string;
+      required: boolean;
+      schema: Schema;
+      xAEPResourceRef?: {
+        resource: string;
+      };
+    }>;
+    requestBody?: {
+      required: boolean;
+      content: {
+        'application/json': {
+          schema: Schema;
+        };
+      };
+    };
+    responses: Record<string, {
+      description: string;
+      content?: {
+        'application/json': {
+          schema: Schema;
+        };
+      };
+    }>;
+  };
+  patch?: {
+    operationId?: string;
+    parameters?: Array<{
+      in: string;
+      name: string;
+      required: boolean;
+      schema: Schema;
+      xAEPResourceRef?: {
+        resource: string;
+      };
+    }>;
+    requestBody?: {
+      required: boolean;
+      content: {
+        'application/json': {
+          schema: Schema;
+        };
+      };
+    };
+    responses: Record<string, {
+      description: string;
+      content?: {
+        'application/json': {
+          schema: Schema;
+        };
+      };
+    }>;
+  };
+  delete?: {
+    operationId?: string;
+    parameters?: Array<{
+      in: string;
+      name: string;
+      required: boolean;
+      schema: Schema;
+      xAEPResourceRef?: {
+        resource: string;
+      };
+    }>;
+    responses: Record<string, {
+      description: string;
+      content?: {
+        'application/json': {
+          schema: Schema;
+        };
+      };
+    }>;
+  };
 }
 
 export interface Operation {
   summary?: string;
   description?: string;
   operationId?: string;
-  parameters?: Parameter[];
-  responses: Record<string, Response>;
-  requestBody?: RequestBody;
+  parameters?: Array<{
+    in: string;
+    name: string;
+    required: boolean;
+    schema: Schema;
+    xAEPResourceRef?: {
+      resource: string;
+    };
+  }>;
+  responses: Record<string, {
+    description: string;
+    content?: {
+      'application/json': {
+        schema: Schema;
+      };
+    };
+  }>;
+  requestBody?: {
+    required: boolean;
+    content: {
+      'application/json': {
+        schema: Schema;
+      };
+    };
+  };
 }
 
 export interface Parameter {

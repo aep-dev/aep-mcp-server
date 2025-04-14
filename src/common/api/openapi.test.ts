@@ -362,15 +362,24 @@ describe('convertToOpenAPI', () => {
         for (const [method, expectedOp] of Object.entries(operations)) {
           const actualOp = pathItem[method as keyof typeof pathItem];
           expect(actualOp).toBeDefined();
-          expect(actualOp.operationId).toBe(expectedOp.operationId);
+          if (!('operationId' in actualOp!)) {
+            throw new Error(`operationId not found in actualOp for ${path} ${method}`);
+          }
+          expect(actualOp!.operationId).toBe(expectedOp.operationId);
 
           if ('parameters' in expectedOp) {
+            if (!('parameters' in actualOp!)) {
+              throw new Error(`Expected 'parameters' in actualOp for ${path} ${method}`);
+            }
             console.log(path + " " + method)
-            expect(actualOp.parameters).toEqual(expectedOp.parameters);
+            expect(actualOp!.parameters).toEqual(expectedOp.parameters);
           }
 
           if ('requestBody' in expectedOp) {
-            expect(actualOp.requestBody).toEqual(expectedOp.requestBody);
+            if (!('requestBody' in actualOp!)) {
+              throw new Error(`Expected 'requestBody' in actualOp for ${path} ${method}`);
+            }
+            expect(actualOp!.requestBody).toEqual(expectedOp.requestBody);
           }
         }
       }

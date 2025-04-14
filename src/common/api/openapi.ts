@@ -479,13 +479,6 @@ export function getPathItem(openapi: OpenAPI, path: string): PathItem | undefine
   return openapi.paths[path];
 }
 
-export interface MethodInfo extends Operation {
-  operationId: string;
-  description: string;
-  parameters: Parameter[];
-  responses: Record<string, Response>;
-}
-
 export function getSchema(schema: Schema | undefined): Schema {
   if (!schema) {
     return { type: 'object', properties: {} };

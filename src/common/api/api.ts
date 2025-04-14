@@ -19,8 +19,8 @@ export class APIClient {
   }
 
   static async fromOpenAPI(openAPI: OpenAPI, serverURL: string = '', pathPrefix: string = ''): Promise<APIClient> {
-    if (!openAPI.openapi && !openAPI.swagger) {
-      throw new Error('Unable to detect OAS version. Please add an openapi field or a swagger field');
+    if (!openAPI.openapi && !openAPI.openapi) {
+      throw new Error('Unable to detect OAS openapi. Please add an openapi field or a openapi field');
     }
 
     const resourceBySingular: Record<string, Resource> = {};
@@ -166,10 +166,12 @@ export class APIClient {
           pattern.push(`{${finalSingular}}`);
         }
 
+        const dereferencedSchema = await dereferenceSchema(schemaRef, openAPI);
+
         const resource = await getOrPopulateResource(
           singular,
           pattern,
-          schemaRef,
+          dereferencedSchema,
           resourceBySingular,
           openAPI
         );
@@ -196,7 +198,7 @@ export class APIClient {
       serverURL = openAPI.servers[0]?.url + pathPrefix;
     }
 
-    if (!serverURL) {
+    if (serverURL == "" || serverURL == "undefined") {
       throw new Error('No server URL found in openapi, and none was provided');
     }
 
@@ -263,30 +265,12 @@ async function getOrPopulateResource(
 
   let resource: Resource;
 
-  if (schema.xAEPResource) {
-    const parents: Resource[] = [];
-    for (const parentSingular of schema.xAEPResource.parents) {
-      const parentSchema = openAPI.components.schemas[parentSingular];
-      if (!parentSchema) {
-        throw new Error(`Resource "${singular}" parent "${parentSingular}" not found`);
-      }
-
-      const parentResource = await getOrPopulateResource(
-        parentSingular,
-        [],
-        parentSchema,
-        resourceBySingular,
-        openAPI
-      );
-
-      parents.push(parentResource);
-      parentResource.children.push(resource);
-    }
-
+  if(schema.xAEPResource) {
     resource = {
       singular: schema.xAEPResource.singular,
       plural: schema.xAEPResource.plural,
-      parents,
+      // Parents will be set later on.
+      parents: [],
       children: [],
       patternElems: schema.xAEPResource.patterns[0].slice(1).split('/'),
       schema,
@@ -304,6 +288,26 @@ async function getOrPopulateResource(
     };
   }
 
+  if (schema.xAEPResource) {
+    for (const parentSingular of schema.xAEPResource.parents) {
+      const parentSchema = openAPI.components.schemas[parentSingular];
+      if (!parentSchema) {
+        throw new Error(`Resource "${singular}" parent "${parentSingular}" not found`);
+      }
+
+      const parentResource = await getOrPopulateResource(
+        parentSingular,
+        [],
+        parentSchema,
+        resourceBySingular,
+        openAPI
+      );
+
+      resource.parents.push(parentResource);
+      parentResource.children.push(resource);
+    }
+  }
+
   resourceBySingular[singular] = resource;
   return resource;
 }
@@ -316,14 +320,14 @@ function getContact(contact?: Contact): Contact | null {
 }
 
 function getSchemaFromResponse(response: OpenAPIResponse, openAPI: OpenAPI): Schema | null {
-  if (openAPI.swagger === '2.0') {
+  if (openAPI.openapi === '2.0') {
     return response.schema || null;
   }
   return response.content?.['application/json']?.schema || null;
 }
 
 function getSchemaFromRequestBody(requestBody: OpenAPIRequestBody, openAPI: OpenAPI): Schema {
-  if (openAPI.swagger === '2.0') {
+  if (openAPI.openapi === '2.0') {
     return requestBody.schema!;
   }
   return requestBody.content['application/json'].schema!;
@@ -338,7 +342,7 @@ async function dereferenceSchema(schema: Schema, openAPI: OpenAPI): Promise<Sche
   const key = parts[parts.length - 1];
   let childSchema: Schema;
 
-  if (openAPI.swagger === '2.0') {
+  if (openAPI.openapi === '2.0') {
     childSchema = openAPI.definitions![key];
   } else {
     childSchema = openAPI.components.schemas[key];

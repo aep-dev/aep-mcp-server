@@ -18,8 +18,24 @@ const basicOpenAPI: OpenAPI = {
   paths: {
     '/widgets': {
       get: {
+        operationId: 'ListWidget',
+        parameters: [
+          {
+            in: 'query',
+            name: 'maxPageSize',
+            required: false,
+            schema: { type: 'integer' }
+          },
+          {
+            in: 'query',
+            name: 'pageToken',
+            required: false,
+            schema: { type: 'string' }
+          }
+        ],
         responses: {
           '200': {
+            description: 'Successful response',
             content: {
               'application/json': {
                 schema: {
@@ -38,8 +54,10 @@ const basicOpenAPI: OpenAPI = {
         }
       },
       post: {
+        operationId: 'CreateWidget',
         responses: {
           '200': {
+            description: 'Successful response',
             content: {
               'application/json': {
                 schema: {
@@ -53,8 +71,18 @@ const basicOpenAPI: OpenAPI = {
     },
     '/widgets/{widget}': {
       get: {
+        operationId: 'GetWidget',
+        parameters: [
+          {
+            in: 'path',
+            name: 'widget',
+            required: true,
+            schema: { type: 'string' }
+          }
+        ],
         responses: {
           '200': {
+            description: 'Successful response',
             content: {
               'application/json': {
                 schema: {
@@ -66,6 +94,15 @@ const basicOpenAPI: OpenAPI = {
         }
       },
       delete: {
+        operationId: 'DeleteWidget',
+        parameters: [
+          {
+            in: 'path',
+            name: 'widget',
+            required: true,
+            schema: { type: 'string' }
+          }
+        ],
         responses: {
           '204': {
             description: 'Successful response'
@@ -73,8 +110,18 @@ const basicOpenAPI: OpenAPI = {
         }
       },
       patch: {
+        operationId: 'UpdateWidget',
+        parameters: [
+          {
+            in: 'path',
+            name: 'widget',
+            required: true,
+            schema: { type: 'string' }
+          }
+        ],
         responses: {
           '200': {
+            description: 'Successful response',
             content: {
               'application/json': {
                 schema: {
@@ -88,6 +135,15 @@ const basicOpenAPI: OpenAPI = {
     },
     '/widgets/{widget}:start': {
       post: {
+        operationId: ':StartWidget',
+        parameters: [
+          {
+            in: 'path',
+            name: 'widget',
+            required: true,
+            schema: { type: 'string' }
+          }
+        ],
         requestBody: {
           required: true,
           content: {
@@ -110,6 +166,7 @@ const basicOpenAPI: OpenAPI = {
         },
         responses: {
           '200': {
+            description: 'Successful response',
             content: {
               'application/json': {
                 schema: {
@@ -123,6 +180,15 @@ const basicOpenAPI: OpenAPI = {
     },
     '/widgets/{widget}:stop': {
       post: {
+        operationId: ':StopWidget',
+        parameters: [
+          {
+            in: 'path',
+            name: 'widget',
+            required: true,
+            schema: { type: 'string' }
+          }
+        ],
         requestBody: {
           required: true,
           content: {
@@ -135,6 +201,7 @@ const basicOpenAPI: OpenAPI = {
         },
         responses: {
           '200': {
+            description: 'Successful response',
             content: {
               'application/json': {
                 schema: {
@@ -210,8 +277,18 @@ describe('APIClient', () => {
         paths: {
           '/widgets/{widget}': {
             get: {
+              operationId: 'GetWidget',
+              parameters: [
+                {
+                  in: 'path',
+                  name: 'widget',
+                  required: true,
+                  schema: { type: 'string' }
+                }
+              ],
               responses: {
                 '200': {
+                  description: 'Successful response',
                   content: {
                     'application/json': {
                       schema: {
@@ -283,9 +360,18 @@ describe('APIClient', () => {
         paths: {
           '/widgets': {
             post: {
-              parameters: [{ name: 'id' }],
+              operationId: 'CreateWidget',
+              parameters: [
+                {
+                  in: 'query',
+                  name: 'id',
+                  required: false,
+                  schema: { type: 'string' }
+                }
+              ],
               responses: {
                 '200': {
+                  description: 'Successful response',
                   content: {
                     'application/json': {
                       schema: {
