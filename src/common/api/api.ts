@@ -240,6 +240,10 @@ export class APIClient {
     });
   }
 
+  resources(): Record<string, Resource> {
+    return this.api.resources;
+  }
+
   getResource(resource: string): Resource {
     const r = this.api.resources[resource];
     if (!r) {
