@@ -2,7 +2,7 @@
   "name": "aep-mcp-server",
   "version": "0.1.0",
   "description": "A MCP server for used with AEP-compliant APIs.",
-  "main": "index.ts",
+  "main": "src/index.ts",
   "scripts": {
     "test": "jest"
   },
