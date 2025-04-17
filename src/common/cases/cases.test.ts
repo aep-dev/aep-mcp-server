@@ -4,7 +4,7 @@ import {
   kebabToPascalCase,
   kebabToSnakeCase,
   upperFirst,
-} from "./cases";
+} from "./cases.js";
 
 describe("Case Conversion Functions", () => {
   describe("pascalCaseToKebabCase", () => {

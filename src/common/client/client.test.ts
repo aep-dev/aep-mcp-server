@@ -1,6 +1,6 @@
 import nock from "nock";
 import axios from "axios";
-import { Client } from "./client";
+import { Client } from "./client.js";
 
 describe("Client", () => {
   const baseUrl = "http://localhost:8081";

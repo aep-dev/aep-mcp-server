@@ -1,29 +1,39 @@
 import { z } from "zod";
 import { Schema } from "./common/api/types.js";
+import { OpenAPIImpl } from "./common/openapi/openapi.js";
 
-export function resourceToZodSchema(schema: Schema): z.ZodRawShape {
+export async function resourceToZodSchema(schema: Schema, oas: OpenAPIImpl): Promise<z.ZodTypeAny> {
+  if(schema.$ref) {
+    const newSchema = await oas.dereferenceSchema(schema)
+    return resourceToZodSchema(newSchema, oas)
+  }
   switch (schema.type) {
     case "boolean":
-      return { type: z.boolean() };
+      return z.boolean();
+    case "integer":
+      return z.number();
     case "number":
-      return { type: z.number() };
+      return z.number();
     case "string":
-      return { type: z.string() };
+      return z.string();
     case "object":
-      return Object.entries(schema.properties || {}).reduce(
-        (acc: Record<string, z.ZodTypeAny>, [key, value]) => {
-          acc[key] = resourceToZodSchema(value).type;
-          return acc;
-        },
-        {}
+      const properties = await Promise.all(
+        Object.entries(schema.properties || {}).map(async ([key, value]) => {
+          const schema = await resourceToZodSchema(value, oas);
+          return [key, schema];
+        })
       );
+      return z.object(Object.fromEntries(properties));
     case "array":
       if (!schema.items) {
         throw "array type with no items set";
       }
-      return { type: resourceToZodSchema(schema.items).type.array() };
+      const itemSchema = await resourceToZodSchema(schema.items, oas);
+      return itemSchema.array();
 
     default:
-      throw "could not find item type " + schema.type;
+      // TODO: handle ref!
+      console.warn(`could not find item type ${schema.type} for schema ${JSON.stringify(schema)}`);
+      return z.string();
   }
 }
