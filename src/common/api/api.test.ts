@@ -1,248 +1,248 @@
 /// <reference types="jest" />
-import { API, Contact, OpenAPI, Resource, Schema } from './types';
-import { APIClient } from './api';
+import { API, Contact, OpenAPI, Resource, Schema } from "./types";
+import { APIClient } from "./api";
 
 const basicOpenAPI: OpenAPI = {
-  openapi: '3.1.0',
+  openapi: "3.1.0",
   info: {
-    title: 'Test API',
-    version: 'version not set',
-    description: 'An API for Test API',
+    title: "Test API",
+    version: "version not set",
+    description: "An API for Test API",
     contact: {
-      name: 'John Doe',
-      email: 'john.doe@example.com',
-      url: 'https://example.com'
-    }
+      name: "John Doe",
+      email: "john.doe@example.com",
+      url: "https://example.com",
+    },
   },
-  servers: [{ url: 'https://api.example.com' }],
+  servers: [{ url: "https://api.example.com" }],
   paths: {
-    '/widgets': {
+    "/widgets": {
       get: {
-        operationId: 'ListWidget',
+        operationId: "ListWidget",
         parameters: [
           {
-            in: 'query',
-            name: 'maxPageSize',
+            in: "query",
+            name: "maxPageSize",
             required: false,
-            schema: { type: 'integer' }
+            schema: { type: "integer" },
           },
           {
-            in: 'query',
-            name: 'pageToken',
+            in: "query",
+            name: "pageToken",
             required: false,
-            schema: { type: 'string' }
-          }
+            schema: { type: "string" },
+          },
         ],
         responses: {
-          '200': {
-            description: 'Successful response',
+          "200": {
+            description: "Successful response",
             content: {
-              'application/json': {
+              "application/json": {
                 schema: {
                   properties: {
                     results: {
-                      type: 'array',
+                      type: "array",
                       items: {
-                        $ref: '#/components/schemas/Widget'
-                      }
-                    }
-                  }
-                }
-              }
-            }
-          }
-        }
+                        $ref: "#/components/schemas/Widget",
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
       },
       post: {
-        operationId: 'CreateWidget',
+        operationId: "CreateWidget",
         responses: {
-          '200': {
-            description: 'Successful response',
+          "200": {
+            description: "Successful response",
             content: {
-              'application/json': {
+              "application/json": {
                 schema: {
-                  $ref: '#/components/schemas/Widget'
-                }
-              }
-            }
-          }
-        }
-      }
+                  $ref: "#/components/schemas/Widget",
+                },
+              },
+            },
+          },
+        },
+      },
     },
-    '/widgets/{widget}': {
+    "/widgets/{widget}": {
       get: {
-        operationId: 'GetWidget',
+        operationId: "GetWidget",
         parameters: [
           {
-            in: 'path',
-            name: 'widget',
+            in: "path",
+            name: "widget",
             required: true,
-            schema: { type: 'string' }
-          }
+            schema: { type: "string" },
+          },
         ],
         responses: {
-          '200': {
-            description: 'Successful response',
+          "200": {
+            description: "Successful response",
             content: {
-              'application/json': {
+              "application/json": {
                 schema: {
-                  $ref: '#/components/schemas/Widget'
-                }
-              }
-            }
-          }
-        }
+                  $ref: "#/components/schemas/Widget",
+                },
+              },
+            },
+          },
+        },
       },
       delete: {
-        operationId: 'DeleteWidget',
+        operationId: "DeleteWidget",
         parameters: [
           {
-            in: 'path',
-            name: 'widget',
+            in: "path",
+            name: "widget",
             required: true,
-            schema: { type: 'string' }
-          }
+            schema: { type: "string" },
+          },
         ],
         responses: {
-          '204': {
-            description: 'Successful response'
-          }
-        }
+          "204": {
+            description: "Successful response",
+          },
+        },
       },
       patch: {
-        operationId: 'UpdateWidget',
+        operationId: "UpdateWidget",
         parameters: [
           {
-            in: 'path',
-            name: 'widget',
+            in: "path",
+            name: "widget",
             required: true,
-            schema: { type: 'string' }
-          }
+            schema: { type: "string" },
+          },
         ],
         responses: {
-          '200': {
-            description: 'Successful response',
+          "200": {
+            description: "Successful response",
             content: {
-              'application/json': {
+              "application/json": {
                 schema: {
-                  $ref: '#/components/schemas/Widget'
-                }
-              }
-            }
-          }
-        }
-      }
+                  $ref: "#/components/schemas/Widget",
+                },
+              },
+            },
+          },
+        },
+      },
     },
-    '/widgets/{widget}:start': {
+    "/widgets/{widget}:start": {
       post: {
-        operationId: ':StartWidget',
+        operationId: ":StartWidget",
         parameters: [
           {
-            in: 'path',
-            name: 'widget',
+            in: "path",
+            name: "widget",
             required: true,
-            schema: { type: 'string' }
-          }
+            schema: { type: "string" },
+          },
         ],
         requestBody: {
           required: true,
           content: {
-            'application/json': {
+            "application/json": {
               schema: {
-                type: 'object',
+                type: "object",
                 properties: {
-                  foo: { type: 'string' },
-                  bar: { type: 'integer' },
+                  foo: { type: "string" },
+                  bar: { type: "integer" },
                   baz: {
-                    type: 'array',
+                    type: "array",
                     items: {
-                      type: 'boolean'
-                    }
-                  }
-                }
-              }
-            }
-          }
+                      type: "boolean",
+                    },
+                  },
+                },
+              },
+            },
+          },
         },
         responses: {
-          '200': {
-            description: 'Successful response',
+          "200": {
+            description: "Successful response",
             content: {
-              'application/json': {
+              "application/json": {
                 schema: {
-                  $ref: '#/components/schemas/Widget'
-                }
-              }
-            }
-          }
-        }
-      }
+                  $ref: "#/components/schemas/Widget",
+                },
+              },
+            },
+          },
+        },
+      },
     },
-    '/widgets/{widget}:stop': {
+    "/widgets/{widget}:stop": {
       post: {
-        operationId: ':StopWidget',
+        operationId: ":StopWidget",
         parameters: [
           {
-            in: 'path',
-            name: 'widget',
+            in: "path",
+            name: "widget",
             required: true,
-            schema: { type: 'string' }
-          }
+            schema: { type: "string" },
+          },
         ],
         requestBody: {
           required: true,
           content: {
-            'application/json': {
+            "application/json": {
               schema: {
-                $ref: '#/components/schemas/Widget'
-              }
-            }
-          }
+                $ref: "#/components/schemas/Widget",
+              },
+            },
+          },
         },
         responses: {
-          '200': {
-            description: 'Successful response',
+          "200": {
+            description: "Successful response",
             content: {
-              'application/json': {
+              "application/json": {
                 schema: {
-                  $ref: '#/components/schemas/Widget'
-                }
-              }
-            }
-          }
-        }
-      }
-    }
+                  $ref: "#/components/schemas/Widget",
+                },
+              },
+            },
+          },
+        },
+      },
+    },
   },
   components: {
     schemas: {
       Widget: {
-        type: 'object',
+        type: "object",
         properties: {
-          name: { type: 'string' }
-        }
+          name: { type: "string" },
+        },
       },
       Account: {
-        type: 'object',
+        type: "object",
         properties: {
-          title: { type: 'string' }
-        }
-      }
-    }
-  }
+          title: { type: "string" },
+        },
+      },
+    },
+  },
 };
 
-describe('APIClient', () => {
-  describe('fromOpenAPI', () => {
-    it('should handle basic resource with CRUD operations', async () => {
+describe("APIClient", () => {
+  describe("fromOpenAPI", () => {
+    it("should handle basic resource with CRUD operations", async () => {
       const client = await APIClient.fromOpenAPI(basicOpenAPI);
       const api = (client as any).api;
 
-      expect(api.serverURL).toBe('https://api.example.com');
+      expect(api.serverURL).toBe("https://api.example.com");
 
-      const widget = api.resources['widget'];
+      const widget = api.resources["widget"];
       expect(widget).toBeDefined();
-      expect(widget.patternElems).toEqual(['widgets', '{widget}']);
+      expect(widget.patternElems).toEqual(["widgets", "{widget}"]);
       expect(widget.getMethod).toBeDefined();
       expect(widget.listMethod).toBeDefined();
       expect(widget.createMethod).toBeDefined();
@@ -253,160 +253,163 @@ describe('APIClient', () => {
       expect(widget.deleteMethod).toBeDefined();
     });
 
-    it('should handle non-resource schemas', async () => {
+    it("should handle non-resource schemas", async () => {
       const client = await APIClient.fromOpenAPI(basicOpenAPI);
       const api = (client as any).api;
-      expect(api.schemas['Account']).toBeDefined();
+      expect(api.schemas["Account"]).toBeDefined();
     });
 
-    it('should handle server URL override', async () => {
-      const client = await APIClient.fromOpenAPI(basicOpenAPI, 'https://override.example.com');
+    it("should handle server URL override", async () => {
+      const client = await APIClient.fromOpenAPI(
+        basicOpenAPI,
+        "https://override.example.com"
+      );
       const api = (client as any).api;
-      expect(api.serverURL).toBe('https://override.example.com');
+      expect(api.serverURL).toBe("https://override.example.com");
     });
 
-    it('should handle resource with x-aep-resource annotation', async () => {
+    it("should handle resource with x-aep-resource annotation", async () => {
       const openAPI: OpenAPI = {
-        openapi: '3.1.0',
+        openapi: "3.1.0",
         info: {
-          title: 'Test API',
-          version: 'version not set',
-          description: 'Test API'
+          title: "Test API",
+          version: "version not set",
+          description: "Test API",
         },
-        servers: [{ url: 'https://api.example.com' }],
+        servers: [{ url: "https://api.example.com" }],
         paths: {
-          '/widgets/{widget}': {
+          "/widgets/{widget}": {
             get: {
-              operationId: 'GetWidget',
+              operationId: "GetWidget",
               parameters: [
                 {
-                  in: 'path',
-                  name: 'widget',
+                  in: "path",
+                  name: "widget",
                   required: true,
-                  schema: { type: 'string' }
-                }
+                  schema: { type: "string" },
+                },
               ],
               responses: {
-                '200': {
-                  description: 'Successful response',
+                "200": {
+                  description: "Successful response",
                   content: {
-                    'application/json': {
+                    "application/json": {
                       schema: {
-                        $ref: '#/components/schemas/widget'
-                      }
-                    }
-                  }
-                }
-              }
-            }
-          }
+                        $ref: "#/components/schemas/widget",
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
         },
         components: {
           schemas: {
             widget: {
-              type: 'object',
+              type: "object",
               properties: {
-                name: { type: 'string' }
+                name: { type: "string" },
               },
               xAEPResource: {
-                singular: 'widget',
-                plural: 'widgets',
-                patterns: ['/widgets/{widget}'],
+                singular: "widget",
+                plural: "widgets",
+                patterns: ["/widgets/{widget}"],
                 parents: [],
-              }
-            }
-          }
-        }
+              },
+            },
+          },
+        },
       };
 
       const client = await APIClient.fromOpenAPI(openAPI);
       const api = (client as any).api;
-      const widget = api.resources['widget'];
+      const widget = api.resources["widget"];
       expect(widget).toBeDefined();
-      expect(widget.singular).toBe('widget');
-      expect(widget.plural).toBe('widgets');
-      expect(widget.patternElems).toEqual(['widgets', '{widget}']);
+      expect(widget.singular).toBe("widget");
+      expect(widget.plural).toBe("widgets");
+      expect(widget.patternElems).toEqual(["widgets", "{widget}"]);
     });
 
-    it('should handle missing server URL', async () => {
+    it("should handle missing server URL", async () => {
       const invalidOpenAPI: OpenAPI = {
-        openapi: '3.1.0',
+        openapi: "3.1.0",
         info: {
-          title: 'Test API',
-          version: 'version not set',
-          description: 'Test API'
+          title: "Test API",
+          version: "version not set",
+          description: "Test API",
         },
         servers: [],
         paths: {},
         components: {
-          schemas: {}
-        }
+          schemas: {},
+        },
       };
 
-      await expect(APIClient.fromOpenAPI(invalidOpenAPI))
-        .rejects
-        .toThrow('No server URL found in openapi, and none was provided');
+      await expect(APIClient.fromOpenAPI(invalidOpenAPI)).rejects.toThrow(
+        "No server URL found in openapi, and none was provided"
+      );
     });
 
-    it('should handle resource with user-settable create ID', async () => {
+    it("should handle resource with user-settable create ID", async () => {
       const openAPI: OpenAPI = {
-        openapi: '3.1.0',
-        servers: [{ url: 'https://api.example.com' }],
+        openapi: "3.1.0",
+        servers: [{ url: "https://api.example.com" }],
         info: {
-          title: 'Test API',
-          version: 'version not set',
-          description: 'Test API'
+          title: "Test API",
+          version: "version not set",
+          description: "Test API",
         },
         paths: {
-          '/widgets': {
+          "/widgets": {
             post: {
-              operationId: 'CreateWidget',
+              operationId: "CreateWidget",
               parameters: [
                 {
-                  in: 'query',
-                  name: 'id',
+                  in: "query",
+                  name: "id",
                   required: false,
-                  schema: { type: 'string' }
-                }
+                  schema: { type: "string" },
+                },
               ],
               responses: {
-                '200': {
-                  description: 'Successful response',
+                "200": {
+                  description: "Successful response",
                   content: {
-                    'application/json': {
+                    "application/json": {
                       schema: {
-                        $ref: '#/components/schemas/Widget'
-                      }
-                    }
-                  }
-                }
-              }
-            }
-          }
+                        $ref: "#/components/schemas/Widget",
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
         },
         components: {
           schemas: {
             Widget: {
-              type: 'object'
-            }
-          }
-        }
+              type: "object",
+            },
+          },
+        },
       };
 
       const client = await APIClient.fromOpenAPI(openAPI);
       const api = (client as any).api;
-      const widget = api.resources['widget'];
+      const widget = api.resources["widget"];
       expect(widget).toBeDefined();
       expect(widget.createMethod?.supportsUserSettableCreate).toBeTruthy();
     });
 
-    it('should handle contact information', async () => {
+    it("should handle contact information", async () => {
       const client = await APIClient.fromOpenAPI(basicOpenAPI);
       const api = (client as any).api;
       expect(api.contact).toBeDefined();
-      expect(api.contact?.name).toBe('John Doe');
-      expect(api.contact?.email).toBe('john.doe@example.com');
-      expect(api.contact?.url).toBe('https://example.com');
+      expect(api.contact?.name).toBe("John Doe");
+      expect(api.contact?.email).toBe("john.doe@example.com");
+      expect(api.contact?.url).toBe("https://example.com");
     });
   });
-}); 
+});
