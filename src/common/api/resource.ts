@@ -1,4 +1,4 @@
-import { Schema } from './types';
+import { Schema } from "./types";
 
 export interface Resource {
   singular: string;
@@ -39,7 +39,7 @@ export interface CustomMethod {
 }
 
 export function getPattern(resource: Resource): string {
-  return resource.patternElems.join('/');
+  return resource.patternElems.join("/");
 }
 
 export function collectionName(resource: Resource): string {
@@ -61,4 +61,4 @@ export function generatePatternStrings(resource: Resource): string[] {
     pattern = `${parentParts[0]}/${pattern}`;
   }
   return [pattern];
-} 
+}

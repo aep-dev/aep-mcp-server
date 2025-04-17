@@ -107,4 +107,4 @@ export interface OpenAPI {
   paths: Record<string, PathItem>;
   components?: Components;
   definitions?: Record<string, Schema>; // OAS 2.0
-} 
+}

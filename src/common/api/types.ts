@@ -122,14 +122,17 @@ export interface PathItem {
         resource: string;
       };
     }>;
-    responses: Record<string, {
-      description: string;
-      content?: {
-        'application/json': {
-          schema: Schema;
+    responses: Record<
+      string,
+      {
+        description: string;
+        content?: {
+          "application/json": {
+            schema: Schema;
+          };
         };
-      };
-    }>;
+      }
+    >;
   };
   post?: {
     operationId?: string;
@@ -145,19 +148,22 @@ export interface PathItem {
     requestBody?: {
       required: boolean;
       content: {
-        'application/json': {
+        "application/json": {
           schema: Schema;
         };
       };
     };
-    responses: Record<string, {
-      description: string;
-      content?: {
-        'application/json': {
-          schema: Schema;
+    responses: Record<
+      string,
+      {
+        description: string;
+        content?: {
+          "application/json": {
+            schema: Schema;
+          };
         };
-      };
-    }>;
+      }
+    >;
   };
   put?: {
     parameters?: Array<{
@@ -172,19 +178,22 @@ export interface PathItem {
     requestBody?: {
       required: boolean;
       content: {
-        'application/json': {
+        "application/json": {
           schema: Schema;
         };
       };
     };
-    responses: Record<string, {
-      description: string;
-      content?: {
-        'application/json': {
-          schema: Schema;
+    responses: Record<
+      string,
+      {
+        description: string;
+        content?: {
+          "application/json": {
+            schema: Schema;
+          };
         };
-      };
-    }>;
+      }
+    >;
   };
   patch?: {
     operationId?: string;
@@ -200,19 +209,22 @@ export interface PathItem {
     requestBody?: {
       required: boolean;
       content: {
-        'application/json': {
+        "application/json": {
           schema: Schema;
         };
       };
     };
-    responses: Record<string, {
-      description: string;
-      content?: {
-        'application/json': {
-          schema: Schema;
+    responses: Record<
+      string,
+      {
+        description: string;
+        content?: {
+          "application/json": {
+            schema: Schema;
+          };
         };
-      };
-    }>;
+      }
+    >;
   };
   delete?: {
     operationId?: string;
@@ -225,14 +237,17 @@ export interface PathItem {
         resource: string;
       };
     }>;
-    responses: Record<string, {
-      description: string;
-      content?: {
-        'application/json': {
-          schema: Schema;
+    responses: Record<
+      string,
+      {
+        description: string;
+        content?: {
+          "application/json": {
+            schema: Schema;
+          };
         };
-      };
-    }>;
+      }
+    >;
   };
 }
 
@@ -249,18 +264,21 @@ export interface Operation {
       resource: string;
     };
   }>;
-  responses: Record<string, {
-    description: string;
-    content?: {
-      'application/json': {
-        schema: Schema;
+  responses: Record<
+    string,
+    {
+      description: string;
+      content?: {
+        "application/json": {
+          schema: Schema;
+        };
       };
-    };
-  }>;
+    }
+  >;
   requestBody?: {
     required: boolean;
     content: {
-      'application/json': {
+      "application/json": {
         schema: Schema;
       };
     };
@@ -313,4 +331,4 @@ export interface PathWithParams {
       resource: string;
     };
   }>;
-} 
+}

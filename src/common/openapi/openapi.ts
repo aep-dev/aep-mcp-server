@@ -1,4 +1,12 @@
-import { OpenAPI, OAS2, OAS3, ContentType, Schema, Response, RequestBody } from './types';
+import {
+  OpenAPI,
+  OAS2,
+  OAS3,
+  ContentType,
+  Schema,
+  Response,
+  RequestBody,
+} from "./types";
 
 export class OpenAPIImpl {
   private api: OpenAPI;
@@ -74,18 +82,18 @@ async function readFileOrURL(pathOrURL: string): Promise<string> {
   }
 
   // In Node.js environment
-  if (typeof process !== 'undefined' && process.versions?.node) {
-    const fs = await import('fs/promises');
-    return fs.readFile(pathOrURL, 'utf-8');
+  if (typeof process !== "undefined" && process.versions?.node) {
+    const fs = await import("fs/promises");
+    return fs.readFile(pathOrURL, "utf-8");
   }
 
-  throw new Error('File system access not available in this environment');
+  throw new Error("File system access not available in this environment");
 }
 
 function isURL(str: string): boolean {
   try {
     const url = new URL(str);
-    return url.protocol === 'http:' || url.protocol === 'https:';
+    return url.protocol === "http:" || url.protocol === "https:";
   } catch {
     return false;
   }
@@ -93,6 +101,6 @@ function isURL(str: string): boolean {
 
 async function parseYAML(yamlString: string): Promise<OpenAPI> {
   // We'll use js-yaml for parsing YAML
-  const yaml = await import('js-yaml');
+  const yaml = await import("js-yaml");
   return yaml.load(yamlString) as OpenAPI;
-} 
+}

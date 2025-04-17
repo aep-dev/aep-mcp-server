@@ -13,7 +13,7 @@ export function pascalCaseToKebabCase(s: string): string {
 
   for (let i = 0; i < s.length; i++) {
     const r = s[i];
-    if ('A' <= r && r <= 'Z') {
+    if ("A" <= r && r <= "Z") {
       if (previousIsUpper && !isAcronym) {
         isAcronym = true;
         // assuming multiple uppers in sequence is an uppercase character.
@@ -41,7 +41,7 @@ export function pascalCaseToKebabCase(s: string): string {
   }
 
   parts.push(s.slice(prevDelimIndex));
-  return parts.join('-').toLowerCase();
+  return parts.join("-").toLowerCase();
 }
 
 /**
@@ -50,13 +50,15 @@ export function pascalCaseToKebabCase(s: string): string {
  * @returns The converted string in camelCase
  */
 export function kebabToCamelCase(s: string): string {
-  const parts = s.split('-');
-  return parts.map((part, i) => {
-    if (i === 0) {
-      return part;
-    }
-    return part.charAt(0).toUpperCase() + part.slice(1);
-  }).join('');
+  const parts = s.split("-");
+  return parts
+    .map((part, i) => {
+      if (i === 0) {
+        return part;
+      }
+      return part.charAt(0).toUpperCase() + part.slice(1);
+    })
+    .join("");
 }
 
 /**
@@ -74,7 +76,7 @@ export function kebabToPascalCase(s: string): string {
  * @returns The converted string in snake_case
  */
 export function kebabToSnakeCase(s: string): string {
-  return s.replace(/-/g, '_');
+  return s.replace(/-/g, "_");
 }
 
 /**
@@ -85,4 +87,4 @@ export function kebabToSnakeCase(s: string): string {
 export function upperFirst(s: string): string {
   if (s.length === 0) return s;
   return s.charAt(0).toUpperCase() + s.slice(1);
-} 
+}

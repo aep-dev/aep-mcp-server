@@ -1,15 +1,15 @@
-import { 
-  API, 
-  Contact, 
-  OpenAPI, 
-  PatternInfo, 
-  Resource, 
+import {
+  API,
+  Contact,
+  OpenAPI,
+  PatternInfo,
+  Resource,
   Schema,
   Response as OpenAPIResponse,
   RequestBody as OpenAPIRequestBody,
-  CustomMethod
-} from './types';
-import { pascalCaseToKebabCase } from '../cases/cases';
+  CustomMethod,
+} from "./types";
+import { pascalCaseToKebabCase } from "../cases/cases";
 
 export class APIClient {
   private api: API;
@@ -18,9 +18,15 @@ export class APIClient {
     this.api = api;
   }
 
-  static async fromOpenAPI(openAPI: OpenAPI, serverURL: string = '', pathPrefix: string = ''): Promise<APIClient> {
+  static async fromOpenAPI(
+    openAPI: OpenAPI,
+    serverURL: string = "",
+    pathPrefix: string = ""
+  ): Promise<APIClient> {
     if (!openAPI.openapi && !openAPI.openapi) {
-      throw new Error('Unable to detect OAS openapi. Please add an openapi field or a openapi field');
+      throw new Error(
+        "Unable to detect OAS openapi. Please add an openapi field or a openapi field"
+      );
     }
 
     const resourceBySingular: Record<string, Resource> = {};
@@ -30,7 +36,7 @@ export class APIClient {
     for (const [path, pathItem] of Object.entries(openAPI.paths)) {
       const trimmedPath = path.slice(pathPrefix.length);
       const patternInfo = getPatternInfo(trimmedPath);
-      
+
       if (!patternInfo) {
         continue;
       }
@@ -39,19 +45,23 @@ export class APIClient {
       const r: Partial<Resource> = {};
 
       if (patternInfo.customMethodName && patternInfo.isResourcePattern) {
-        const pattern = trimmedPath.split(':')[0].slice(1);
+        const pattern = trimmedPath.split(":")[0].slice(1);
         if (!customMethodsByPattern[pattern]) {
           customMethodsByPattern[pattern] = [];
         }
 
         if (pathItem.post) {
-          const response = pathItem.post.responses['200'];
+          const response = pathItem.post.responses["200"];
           if (response) {
             const schema = getSchemaFromResponse(response, openAPI);
-            const responseSchema = schema ? await dereferenceSchema(schema, openAPI) : null;
-            
+            const responseSchema = schema
+              ? await dereferenceSchema(schema, openAPI)
+              : null;
+
             if (!pathItem.post.requestBody) {
-              throw new Error(`Custom method ${patternInfo.customMethodName} has a POST response but no request body`);
+              throw new Error(
+                `Custom method ${patternInfo.customMethodName} has a POST response but no request body`
+              );
             }
 
             const requestSchema = await dereferenceSchema(
@@ -61,24 +71,26 @@ export class APIClient {
 
             customMethodsByPattern[pattern].push({
               name: patternInfo.customMethodName,
-              method: 'POST',
+              method: "POST",
               request: requestSchema,
-              response: responseSchema
+              response: responseSchema,
             });
           }
         }
 
         if (pathItem.get) {
-          const response = pathItem.get.responses['200'];
+          const response = pathItem.get.responses["200"];
           if (response) {
             const schema = getSchemaFromResponse(response, openAPI);
-            const responseSchema = schema ? await dereferenceSchema(schema, openAPI) : null;
+            const responseSchema = schema
+              ? await dereferenceSchema(schema, openAPI)
+              : null;
 
             customMethodsByPattern[pattern].push({
               name: patternInfo.customMethodName,
-              method: 'GET',
+              method: "GET",
               request: null,
-              response: responseSchema
+              response: responseSchema,
             });
           }
         }
@@ -87,14 +99,14 @@ export class APIClient {
           r.deleteMethod = {};
         }
         if (pathItem.get) {
-          const response = pathItem.get.responses['200'];
+          const response = pathItem.get.responses["200"];
           if (response) {
             schemaRef = getSchemaFromResponse(response, openAPI);
             r.getMethod = {};
           }
         }
         if (pathItem.patch) {
-          const response = pathItem.patch.responses['200'];
+          const response = pathItem.patch.responses["200"];
           if (response) {
             schemaRef = getSchemaFromResponse(response, openAPI);
             r.updateMethod = {};
@@ -102,47 +114,54 @@ export class APIClient {
         }
       } else {
         if (pathItem.post) {
-          const response = pathItem.post.responses['200'];
+          const response = pathItem.post.responses["200"];
           if (response) {
             schemaRef = getSchemaFromResponse(response, openAPI);
-            const supportsUserSettableCreate = pathItem.post.parameters?.some(
-              param => param.name === 'id'
-            ) ?? false;
+            const supportsUserSettableCreate =
+              pathItem.post.parameters?.some((param) => param.name === "id") ??
+              false;
             r.createMethod = { supportsUserSettableCreate };
           }
         }
 
         if (pathItem.get) {
-          const response = pathItem.get.responses['200'];
+          const response = pathItem.get.responses["200"];
           if (response) {
             const respSchema = getSchemaFromResponse(response, openAPI);
             if (!respSchema) {
-              console.warn(`Resource ${path} has a LIST method with a response schema, but the response schema is null.`);
-            } else {
-              const resolvedSchema = await dereferenceSchema(respSchema, openAPI);
-              const arrayProperty = Object.entries(resolvedSchema.properties || {}).find(
-                ([_, prop]) => prop.type === 'array'
+              console.warn(
+                `Resource ${path} has a LIST method with a response schema, but the response schema is null.`
               );
+            } else {
+              const resolvedSchema = await dereferenceSchema(
+                respSchema,
+                openAPI
+              );
+              const arrayProperty = Object.entries(
+                resolvedSchema.properties || {}
+              ).find(([_, prop]) => prop.type === "array");
 
               if (arrayProperty) {
                 schemaRef = arrayProperty[1].items || null;
                 r.listMethod = {
                   hasUnreachableResources: false,
                   supportsFilter: false,
-                  supportsSkip: false
+                  supportsSkip: false,
                 };
 
                 for (const param of pathItem.get.parameters || []) {
-                  if (param.name === 'skip') {
+                  if (param.name === "skip") {
                     r.listMethod.supportsSkip = true;
-                  } else if (param.name === 'unreachable') {
+                  } else if (param.name === "unreachable") {
                     r.listMethod.hasUnreachableResources = true;
-                  } else if (param.name === 'filter') {
+                  } else if (param.name === "filter") {
                     r.listMethod.supportsFilter = true;
                   }
                 }
               } else {
-                console.warn(`Resource ${path} has a LIST method with a response schema, but the items field is not present or is not an array.`);
+                console.warn(
+                  `Resource ${path} has a LIST method with a response schema, but the items field is not present or is not an array.`
+                );
               }
             }
           }
@@ -150,10 +169,10 @@ export class APIClient {
       }
 
       if (schemaRef) {
-        const parts = schemaRef.$ref?.split('/') || [];
+        const parts = schemaRef.$ref?.split("/") || [];
         const key = parts[parts.length - 1];
         const singular = pascalCaseToKebabCase(key);
-        const pattern = trimmedPath.split('/').slice(1);
+        const pattern = trimmedPath.split("/").slice(1);
 
         if (!patternInfo.isResourcePattern) {
           let finalSingular = singular;
@@ -185,9 +204,11 @@ export class APIClient {
     }
 
     // Map custom methods to resources
-    for (const [pattern, customMethods] of Object.entries(customMethodsByPattern)) {
+    for (const [pattern, customMethods] of Object.entries(
+      customMethodsByPattern
+    )) {
       const resource = Object.values(resourceBySingular).find(
-        r => r.patternElems.join('/') === pattern
+        (r) => r.patternElems.join("/") === pattern
       );
       if (resource) {
         resource.customMethods = customMethods;
@@ -199,7 +220,7 @@ export class APIClient {
     }
 
     if (serverURL == "" || serverURL == "undefined") {
-      throw new Error('No server URL found in openapi, and none was provided');
+      throw new Error("No server URL found in openapi, and none was provided");
     }
 
     // Add non-resource schemas to API's schemas
@@ -215,7 +236,7 @@ export class APIClient {
       name: openAPI.info.title,
       contact: getContact(openAPI.info.contact),
       resources: resourceBySingular,
-      schemas
+      schemas,
     });
   }
 
@@ -229,17 +250,17 @@ export class APIClient {
 }
 
 function getPatternInfo(path: string): PatternInfo | null {
-  let customMethodName = '';
-  if (path.includes(':')) {
-    const parts = path.split(':');
+  let customMethodName = "";
+  if (path.includes(":")) {
+    const parts = path.split(":");
     path = parts[0];
     customMethodName = parts[1];
   }
 
-  const pattern = path.split('/').slice(1);
+  const pattern = path.split("/").slice(1);
   for (let i = 0; i < pattern.length; i++) {
     const segment = pattern[i];
-    const wrapped = segment.startsWith('{') && segment.endsWith('}');
+    const wrapped = segment.startsWith("{") && segment.endsWith("}");
     const wantWrapped = i % 2 === 1;
     if (wrapped !== wantWrapped) {
       return null;
@@ -248,7 +269,7 @@ function getPatternInfo(path: string): PatternInfo | null {
 
   return {
     isResourcePattern: pattern.length % 2 === 0,
-    customMethodName
+    customMethodName,
   };
 }
 
@@ -265,26 +286,26 @@ async function getOrPopulateResource(
 
   let resource: Resource;
 
-  if(schema.xAEPResource) {
+  if (schema.xAEPResource) {
     resource = {
       singular: schema.xAEPResource.singular,
       plural: schema.xAEPResource.plural,
       // Parents will be set later on.
       parents: [],
       children: [],
-      patternElems: schema.xAEPResource.patterns[0].slice(1).split('/'),
+      patternElems: schema.xAEPResource.patterns[0].slice(1).split("/"),
       schema,
-      customMethods: []
+      customMethods: [],
     };
   } else {
     resource = {
       singular,
-      plural: '',
+      plural: "",
       parents: [],
       children: [],
       patternElems: pattern,
       schema,
-      customMethods: []
+      customMethods: [],
     };
   }
 
@@ -292,7 +313,9 @@ async function getOrPopulateResource(
     for (const parentSingular of schema.xAEPResource.parents) {
       const parentSchema = openAPI.components.schemas[parentSingular];
       if (!parentSchema) {
-        throw new Error(`Resource "${singular}" parent "${parentSingular}" not found`);
+        throw new Error(
+          `Resource "${singular}" parent "${parentSingular}" not found`
+        );
       }
 
       const parentResource = await getOrPopulateResource(
@@ -319,30 +342,39 @@ function getContact(contact?: Contact): Contact | null {
   return contact;
 }
 
-function getSchemaFromResponse(response: OpenAPIResponse, openAPI: OpenAPI): Schema | null {
-  if (openAPI.openapi === '2.0') {
+function getSchemaFromResponse(
+  response: OpenAPIResponse,
+  openAPI: OpenAPI
+): Schema | null {
+  if (openAPI.openapi === "2.0") {
     return response.schema || null;
   }
-  return response.content?.['application/json']?.schema || null;
+  return response.content?.["application/json"]?.schema || null;
 }
 
-function getSchemaFromRequestBody(requestBody: OpenAPIRequestBody, openAPI: OpenAPI): Schema {
-  if (openAPI.openapi === '2.0') {
+function getSchemaFromRequestBody(
+  requestBody: OpenAPIRequestBody,
+  openAPI: OpenAPI
+): Schema {
+  if (openAPI.openapi === "2.0") {
     return requestBody.schema!;
   }
-  return requestBody.content['application/json'].schema!;
+  return requestBody.content["application/json"].schema!;
 }
 
-async function dereferenceSchema(schema: Schema, openAPI: OpenAPI): Promise<Schema> {
+async function dereferenceSchema(
+  schema: Schema,
+  openAPI: OpenAPI
+): Promise<Schema> {
   if (!schema.$ref) {
     return schema;
   }
 
-  const parts = schema.$ref.split('/');
+  const parts = schema.$ref.split("/");
   const key = parts[parts.length - 1];
   let childSchema: Schema;
 
-  if (openAPI.openapi === '2.0') {
+  if (openAPI.openapi === "2.0") {
     childSchema = openAPI.definitions![key];
   } else {
     childSchema = openAPI.components.schemas[key];
@@ -353,4 +385,4 @@ async function dereferenceSchema(schema: Schema, openAPI: OpenAPI): Promise<Sche
   }
 
   return dereferenceSchema(childSchema, openAPI);
-} 
+}

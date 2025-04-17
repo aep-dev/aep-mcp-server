@@ -1,4 +1,4 @@
-import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios';
+import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse } from "axios";
 
 type RequestLoggingFunction = (ctx: any, req: any, ...args: any[]) => void;
 type ResponseLoggingFunction = (ctx: any, resp: any, ...args: any[]) => void;
@@ -31,19 +31,19 @@ export class Client {
     body: Record<string, any>,
     parameters: Record<string, string>
   ): Promise<Record<string, any>> {
-    let suffix = '';
+    let suffix = "";
     if (resource.CreateMethod?.SupportsUserSettableCreate) {
       const id = body.id;
       if (!id) {
         throw new Error(`id field not found in ${JSON.stringify(body)}`);
       }
-      if (typeof id === 'string') {
+      if (typeof id === "string") {
         suffix = `?id=${id}`;
       }
     }
 
     const url = this.basePath(ctx, resource, serverUrl, parameters, suffix);
-    const response = await this.makeRequest(ctx, 'POST', url, body);
+    const response = await this.makeRequest(ctx, "POST", url, body);
     return response;
   }
 
@@ -53,33 +53,36 @@ export class Client {
     serverUrl: string,
     parameters: Record<string, string>
   ): Promise<Record<string, any>[]> {
-    const url = this.basePath(ctx, resource, serverUrl, parameters, '');
-    const response = await this.makeRequest(ctx, 'GET', url);
-    
-    const kebab = this.kebabToCamelCase(resource.Plural);
-    const lowerKebab = kebab.length > 1 
-      ? kebab.charAt(0).toLowerCase() + kebab.slice(1)
-      : '';
+    const url = this.basePath(ctx, resource, serverUrl, parameters, "");
+    const response = await this.makeRequest(ctx, "GET", url);
 
-    const possibleKeys = ['results', resource.Plural, kebab, lowerKebab];
-    
+    const kebab = this.kebabToCamelCase(resource.Plural);
+    const lowerKebab =
+      kebab.length > 1 ? kebab.charAt(0).toLowerCase() + kebab.slice(1) : "";
+
+    const possibleKeys = ["results", resource.Plural, kebab, lowerKebab];
+
     for (const key of possibleKeys) {
       if (response[key] && Array.isArray(response[key])) {
-        return response[key].filter((item: any) => typeof item === 'object');
+        return response[key].filter((item: any) => typeof item === "object");
       }
     }
 
-    throw new Error('No valid list key was found');
+    throw new Error("No valid list key was found");
   }
 
-  async get(ctx: any, serverUrl: string, path: string): Promise<Record<string, any>> {
-    const url = `${serverUrl}/${path.replace(/^\//, '')}`;
-    return this.makeRequest(ctx, 'GET', url);
+  async get(
+    ctx: any,
+    serverUrl: string,
+    path: string
+  ): Promise<Record<string, any>> {
+    const url = `${serverUrl}/${path.replace(/^\//, "")}`;
+    return this.makeRequest(ctx, "GET", url);
   }
 
   async delete(ctx: any, serverUrl: string, path: string): Promise<void> {
-    const url = `${serverUrl}/${path.replace(/^\//, '')}`;
-    await this.makeRequest(ctx, 'DELETE', url);
+    const url = `${serverUrl}/${path.replace(/^\//, "")}`;
+    await this.makeRequest(ctx, "DELETE", url);
   }
 
   async update(
@@ -88,8 +91,8 @@ export class Client {
     path: string,
     body: Record<string, any>
   ): Promise<void> {
-    const url = `${serverUrl}/${path.replace(/^\//, '')}`;
-    await this.makeRequest(ctx, 'PATCH', url, body);
+    const url = `${serverUrl}/${path.replace(/^\//, "")}`;
+    await this.makeRequest(ctx, "PATCH", url, body);
   }
 
   private async makeRequest(
@@ -110,7 +113,7 @@ export class Client {
     try {
       const response = await this.client.request(config);
       this.responseLoggingFunction(ctx, response);
-      
+
       if (response.status === 204) {
         return {};
       }
@@ -121,7 +124,9 @@ export class Client {
     } catch (error: any) {
       if (error.response) {
         this.responseLoggingFunction(ctx, error.response);
-        throw new Error(`Request failed: ${JSON.stringify(error.response.data)}`);
+        throw new Error(
+          `Request failed: ${JSON.stringify(error.response.data)}`
+        );
       }
       throw error;
     }
@@ -140,7 +145,7 @@ export class Client {
     parameters: Record<string, string>,
     suffix: string
   ): string {
-    serverUrl = serverUrl.replace(/\/$/, '');
+    serverUrl = serverUrl.replace(/\/$/, "");
     const urlElems = [serverUrl];
 
     for (let i = 0; i < resource.PatternElems.length - 1; i++) {
@@ -151,15 +156,19 @@ export class Client {
         const paramName = elem.slice(1, -1);
         const value = parameters[paramName];
         if (!value) {
-          throw new Error(`Parameter ${paramName} not found in parameters ${JSON.stringify(parameters)}`);
+          throw new Error(
+            `Parameter ${paramName} not found in parameters ${JSON.stringify(
+              parameters
+            )}`
+          );
         }
 
-        const lastValue = value.split('/').pop() || value;
+        const lastValue = value.split("/").pop() || value;
         urlElems.push(lastValue);
       }
     }
 
-    let result = urlElems.join('/');
+    let result = urlElems.join("/");
     if (suffix) {
       result += suffix;
     }
@@ -169,4 +178,4 @@ export class Client {
   private kebabToCamelCase(str: string): string {
     return str.replace(/-([a-z])/g, (_, letter) => letter.toUpperCase());
   }
-} 
+}
