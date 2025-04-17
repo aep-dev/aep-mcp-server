@@ -1,6 +1,6 @@
 /// <reference types="jest" />
 import { API, Contact, OpenAPI, Resource, Schema } from "./types.js";
-import {APIClient} from "./api.js";
+import { APIClient } from "./api.js";
 import { fetchOpenAPI, OpenAPIImpl } from "../openapi/openapi.js";
 import { resourceToZodSchema } from "../../schema.js";
 

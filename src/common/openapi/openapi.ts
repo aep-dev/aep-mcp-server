@@ -8,7 +8,7 @@ import {
   RequestBody,
 } from "./types.js";
 
-import yaml from 'js-yaml';
+import yaml from "js-yaml";
 
 export class OpenAPIImpl {
   private api: OpenAPI;

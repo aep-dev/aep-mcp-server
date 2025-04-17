@@ -2,10 +2,13 @@ import { z } from "zod";
 import { Schema } from "./common/api/types.js";
 import { OpenAPIImpl } from "./common/openapi/openapi.js";
 
-export async function resourceToZodSchema(schema: Schema, oas: OpenAPIImpl): Promise<z.ZodTypeAny> {
-  if(schema.$ref) {
-    const newSchema = await oas.dereferenceSchema(schema)
-    return resourceToZodSchema(newSchema, oas)
+export async function resourceToZodSchema(
+  schema: Schema,
+  oas: OpenAPIImpl
+): Promise<z.ZodTypeAny> {
+  if (schema.$ref) {
+    const newSchema = await oas.dereferenceSchema(schema);
+    return resourceToZodSchema(newSchema, oas);
   }
   switch (schema.type) {
     case "boolean":
@@ -33,7 +36,11 @@ export async function resourceToZodSchema(schema: Schema, oas: OpenAPIImpl): Pro
 
     default:
       // TODO: handle ref!
-      console.warn(`could not find item type ${schema.type} for schema ${JSON.stringify(schema)}`);
+      console.warn(
+        `could not find item type ${schema.type} for schema ${JSON.stringify(
+          schema
+        )}`
+      );
       return z.string();
   }
 }

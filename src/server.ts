@@ -45,12 +45,17 @@ async function main() {
   for (const [resourceName, resource] of Object.entries(resources)) {
     const zodSchema = await resourceToZodSchema(resource.schema, oas);
     if (!(zodSchema instanceof z.ZodObject)) {
-      throw new Error(`Expected object schema but got ${zodSchema.constructor.name}`);
+      throw new Error(
+        `Expected object schema but got ${zodSchema.constructor.name}`
+      );
     }
     server.tool(
       resourceName,
       zodSchema._def.shape(),
-      async (args: Record<string, unknown>, extra: RequestHandlerExtra): Promise<Response> => {
+      async (
+        args: Record<string, unknown>,
+        extra: RequestHandlerExtra
+      ): Promise<Response> => {
         console.log(args);
         return {
           content: [{ type: "text", text: "Success" }],
