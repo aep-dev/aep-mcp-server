@@ -2,10 +2,15 @@
   "name": "aep-mcp-server",
   "version": "0.1.0",
   "description": "A MCP server for used with AEP-compliant APIs.",
-  "main": "src/index.ts",
+  "main": "index.ts",
+  "type": "module",
   "scripts": {
+    "start": "tsx src/index.ts",
     "test": "jest"
   },
+  "files": [
+    "dist"
+  ],
   "author": "",
   "license": "Apache v2",
   "devDependencies": {
@@ -18,6 +23,7 @@
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.9.0",
-    "axios": "^1.8.4"
+    "axios": "^1.8.4",
+    "tsx": "^4.19.3"
   }
 }

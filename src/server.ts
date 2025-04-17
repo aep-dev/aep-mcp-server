@@ -3,10 +3,10 @@ import {
   ResourceTemplate,
 } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
-import { fetchOpenAPI } from "./common/openapi/openapi";
-import { APIClient } from "./common/api/api";
-import { OpenAPI as OpenAPIType } from "./common/api/types";
-import { resourceToZodSchema } from "./schema";
+import { fetchOpenAPI } from "./common/openapi/openapi.js";
+import { APIClient } from "./common/api/api.js";
+import { OpenAPI as OpenAPIType } from "./common/api/types.js";
+import { resourceToZodSchema } from "./schema.js";
 
 const openapiUrl =
   "https://raw.githubusercontent.com/Roblox/creator-docs/refs/heads/main/content/en-us/reference/cloud/cloud.docs.json";

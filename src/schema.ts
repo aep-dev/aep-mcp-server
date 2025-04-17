@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { Schema } from "./common/api/types";
+import { Schema } from "./common/api/types.js";
 
 export function resourceToZodSchema(schema: Schema): z.ZodRawShape {
   switch (schema.type) {

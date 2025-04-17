@@ -1,6 +1,6 @@
 /// <reference types="jest" />
-import { API, Contact, OpenAPI, Resource, Schema } from "./types";
-import { APIClient } from "./api";
+import { API, Contact, OpenAPI, Resource, Schema } from "./types.js";
+import {APIClient} from "./api.js";
 
 const basicOpenAPI: OpenAPI = {
   openapi: "3.1.0",

@@ -10,9 +10,9 @@ import {
   RequestBody,
   Parameter,
   Response,
-} from "./types";
-import { collectionName } from "./resource";
-import { kebabToPascalCase } from "../cases/cases";
+} from "./types.js";
+import { collectionName } from "./resource.js";
+import { kebabToPascalCase } from "../cases/cases.js";
 
 export function convertToOpenAPI(api: API): OpenAPI {
   const paths: Record<string, OpenAPIPathItem> = {};

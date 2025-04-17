@@ -6,7 +6,7 @@ import {
   Schema,
   Response,
   RequestBody,
-} from "./types";
+} from "./types.js";
 
 export class OpenAPIImpl {
   private api: OpenAPI;
