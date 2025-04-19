@@ -2,10 +2,16 @@
   "name": "aep-mcp-server",
   "version": "0.1.0",
   "description": "A MCP server for used with AEP-compliant APIs.",
-  "main": "index.ts",
+  "main": "server.ts",
+  "type": "module",
   "scripts": {
+    "build": "tsc",
+    "start": "tsc && node dist/server.js",
     "test": "jest"
   },
+  "files": [
+    "dist"
+  ],
   "author": "",
   "license": "Apache v2",
   "devDependencies": {
@@ -17,6 +23,9 @@
     "ts-jest": "^29.3.2"
   },
   "dependencies": {
-    "axios": "^1.8.4"
+    "@modelcontextprotocol/sdk": "^1.9.0",
+    "axios": "^1.8.4",
+    "js-yaml": "^4.1.0",
+    "tsx": "^4.19.3"
   }
 }

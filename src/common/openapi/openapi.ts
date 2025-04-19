@@ -6,7 +6,9 @@ import {
   Schema,
   Response,
   RequestBody,
-} from "./types";
+} from "./types.js";
+
+import yaml from "js-yaml";
 
 export class OpenAPIImpl {
   private api: OpenAPI;
@@ -100,7 +102,5 @@ function isURL(str: string): boolean {
 }
 
 async function parseYAML(yamlString: string): Promise<OpenAPI> {
-  // We'll use js-yaml for parsing YAML
-  const yaml = await import("js-yaml");
   return yaml.load(yamlString) as OpenAPI;
 }

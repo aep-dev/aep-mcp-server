@@ -8,8 +8,8 @@ import {
   Response as OpenAPIResponse,
   RequestBody as OpenAPIRequestBody,
   CustomMethod,
-} from "./types";
-import { pascalCaseToKebabCase } from "../cases/cases";
+} from "./types.js";
+import { pascalCaseToKebabCase } from "../cases/cases.js";
 
 export class APIClient {
   private api: API;
@@ -238,6 +238,10 @@ export class APIClient {
       resources: resourceBySingular,
       schemas,
     });
+  }
+
+  resources(): Record<string, Resource> {
+    return this.api.resources;
   }
 
   getResource(resource: string): Resource {

@@ -1,5 +1,15 @@
-import { API, Contact, OpenAPI, Resource, Schema, ListMethod } from "./types";
-import { convertToOpenAPI, generateParentPatternsWithParams } from "./openapi";
+import {
+  API,
+  Contact,
+  OpenAPI,
+  Resource,
+  Schema,
+  ListMethod,
+} from "./types.js";
+import {
+  convertToOpenAPI,
+  generateParentPatternsWithParams,
+} from "./openapi.js";
 
 describe("convertToOpenAPI", () => {
   // Common example API used across tests

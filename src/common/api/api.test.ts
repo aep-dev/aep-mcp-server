@@ -1,6 +1,8 @@
 /// <reference types="jest" />
-import { API, Contact, OpenAPI, Resource, Schema } from "./types";
-import { APIClient } from "./api";
+import { API, Contact, OpenAPI, Resource, Schema } from "./types.js";
+import { APIClient } from "./api.js";
+import { fetchOpenAPI, OpenAPIImpl } from "../openapi/openapi.js";
+import { resourceToZodSchema } from "../../schema.js";
 
 const basicOpenAPI: OpenAPI = {
   openapi: "3.1.0",
@@ -410,6 +412,23 @@ describe("APIClient", () => {
       expect(api.contact?.name).toBe("John Doe");
       expect(api.contact?.email).toBe("john.doe@example.com");
       expect(api.contact?.url).toBe("https://example.com");
+    });
+
+    it("should be able to parse the Roblox API", async () => {
+      const openapiUrl =
+        "https://raw.githubusercontent.com/Roblox/creator-docs/refs/heads/main/content/en-us/reference/cloud/cloud.docs.json";
+      const prefix = "/cloud/v2";
+
+      const openapi = await fetchOpenAPI(openapiUrl);
+
+      try {
+        const a = await APIClient.fromOpenAPI(openapi as any, prefix);
+        for (const [resourceName, resource] of Object.entries(a.resources())) {
+          resourceToZodSchema(resource.schema, new OpenAPIImpl(openapi));
+        }
+      } catch (error) {
+        console.error(error);
+      }
     });
   });
 });
