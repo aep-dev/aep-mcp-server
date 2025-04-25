@@ -149,7 +149,7 @@ async function main() {
         return {
           content: [{
             type: "text",
-            text: JSON.stringify(resp.data)
+            text: JSON.stringify(resp)
           }],
           isError: false
         };
@@ -169,7 +169,7 @@ async function main() {
         return {
           content: [{
             type: "text",
-            text: JSON.stringify(resp.data)
+            text: JSON.stringify(resp)
           }],
           isError: false
         };
