@@ -1,8 +1,8 @@
 /// <reference types="jest" />
-import { API, Contact, OpenAPI, Resource, Schema } from "./types.js";
+import { API, Contact, OpenAPI, Resource, APISchema } from "./types.js";
 import { APIClient } from "./api.js";
 import { fetchOpenAPI, OpenAPIImpl } from "../openapi/openapi.js";
-import { resourceToZodSchema } from "../../schema.js";
+import { schemaToZodSchema } from "../../schema.js";
 
 const basicOpenAPI: OpenAPI = {
   openapi: "3.1.0",
@@ -422,9 +422,9 @@ describe("APIClient", () => {
       const openapi = await fetchOpenAPI(openapiUrl);
 
       try {
-        const a = await APIClient.fromOpenAPI(openapi as any, prefix);
+        const a = await APIClient.fromOpenAPI(openapi as any, "", prefix);
         for (const [resourceName, resource] of Object.entries(a.resources())) {
-          resourceToZodSchema(resource.schema, new OpenAPIImpl(openapi));
+          schemaToZodSchema(resource.schema, new OpenAPIImpl(openapi));
         }
       } catch (error) {
         console.error(error);

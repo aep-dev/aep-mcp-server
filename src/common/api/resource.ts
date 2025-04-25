@@ -1,4 +1,4 @@
-import { Schema } from "./types.js";
+import { APISchema } from "./types.js";
 
 export interface Resource {
   singular: string;
@@ -6,7 +6,7 @@ export interface Resource {
   parents: Resource[];
   children: Resource[];
   patternElems: string[];
-  schema: Schema;
+  schema: APISchema;
   getMethod?: GetMethod;
   listMethod?: ListMethod;
   createMethod?: CreateMethod;
@@ -34,8 +34,8 @@ export interface DeleteMethod {}
 export interface CustomMethod {
   name: string;
   method: string;
-  request: Schema | null;
-  response: Schema | null;
+  request: APISchema | null;
+  response: APISchema | null;
 }
 
 export function getPattern(resource: Resource): string {

@@ -8,7 +8,7 @@ export interface API {
   serverURL: string;
   name: string;
   contact: Contact | null;
-  schemas: Record<string, Schema>;
+  schemas: Record<string, APISchema>;
   resources: Record<string, Resource>;
 }
 
@@ -18,7 +18,7 @@ export interface Resource {
   parents: Resource[];
   children: Resource[];
   patternElems: string[];
-  schema: Schema;
+  schema: APISchema;
   getMethod?: GetMethod;
   listMethod?: ListMethod;
   createMethod?: CreateMethod;
@@ -46,14 +46,14 @@ export interface DeleteMethod {}
 export interface CustomMethod {
   name: string;
   method: string;
-  request: Schema | null;
-  response: Schema | null;
+  request: APISchema | null;
+  response: APISchema | null;
 }
 
-export interface Schema {
+export interface APISchema {
   type?: string;
-  properties?: Record<string, Schema>;
-  items?: Schema;
+  properties?: Record<string, APISchema>;
+  items?: APISchema;
   $ref?: string;
   xAEPResource?: {
     singular: string;
@@ -86,9 +86,9 @@ export interface OpenAPI {
   };
   paths: Record<string, PathItem>;
   components: {
-    schemas: Record<string, Schema>;
+    schemas: Record<string, APISchema>;
   };
-  definitions?: Record<string, Schema>;
+  definitions?: Record<string, APISchema>;
 }
 
 export interface Info {
@@ -117,7 +117,7 @@ export interface PathItem {
       in: string;
       name: string;
       required: boolean;
-      schema: Schema;
+      schema: APISchema;
       xAEPResourceRef?: {
         resource: string;
       };
@@ -128,7 +128,7 @@ export interface PathItem {
         description: string;
         content?: {
           "application/json": {
-            schema: Schema;
+            schema: APISchema;
           };
         };
       }
@@ -140,7 +140,7 @@ export interface PathItem {
       in: string;
       name: string;
       required: boolean;
-      schema: Schema;
+      schema: APISchema;
       xAEPResourceRef?: {
         resource: string;
       };
@@ -149,7 +149,7 @@ export interface PathItem {
       required: boolean;
       content: {
         "application/json": {
-          schema: Schema;
+          schema: APISchema;
         };
       };
     };
@@ -159,7 +159,7 @@ export interface PathItem {
         description: string;
         content?: {
           "application/json": {
-            schema: Schema;
+            schema: APISchema;
           };
         };
       }
@@ -170,7 +170,7 @@ export interface PathItem {
       in: string;
       name: string;
       required: boolean;
-      schema: Schema;
+      schema: APISchema;
       xAEPResourceRef?: {
         resource: string;
       };
@@ -179,7 +179,7 @@ export interface PathItem {
       required: boolean;
       content: {
         "application/json": {
-          schema: Schema;
+          schema: APISchema;
         };
       };
     };
@@ -189,7 +189,7 @@ export interface PathItem {
         description: string;
         content?: {
           "application/json": {
-            schema: Schema;
+            schema: APISchema;
           };
         };
       }
@@ -201,7 +201,7 @@ export interface PathItem {
       in: string;
       name: string;
       required: boolean;
-      schema: Schema;
+      schema: APISchema;
       xAEPResourceRef?: {
         resource: string;
       };
@@ -210,7 +210,7 @@ export interface PathItem {
       required: boolean;
       content: {
         "application/json": {
-          schema: Schema;
+          schema: APISchema;
         };
       };
     };
@@ -220,7 +220,7 @@ export interface PathItem {
         description: string;
         content?: {
           "application/json": {
-            schema: Schema;
+            schema: APISchema;
           };
         };
       }
@@ -232,7 +232,7 @@ export interface PathItem {
       in: string;
       name: string;
       required: boolean;
-      schema: Schema;
+      schema: APISchema;
       xAEPResourceRef?: {
         resource: string;
       };
@@ -243,7 +243,7 @@ export interface PathItem {
         description: string;
         content?: {
           "application/json": {
-            schema: Schema;
+            schema: APISchema;
           };
         };
       }
@@ -259,7 +259,7 @@ export interface Operation {
     in: string;
     name: string;
     required: boolean;
-    schema: Schema;
+    schema: APISchema;
     xAEPResourceRef?: {
       resource: string;
     };
@@ -270,7 +270,7 @@ export interface Operation {
       description: string;
       content?: {
         "application/json": {
-          schema: Schema;
+          schema: APISchema;
         };
       };
     }
@@ -279,7 +279,7 @@ export interface Operation {
     required: boolean;
     content: {
       "application/json": {
-        schema: Schema;
+        schema: APISchema;
       };
     };
   };
@@ -290,7 +290,7 @@ export interface Parameter {
   in: string;
   description?: string;
   required?: boolean;
-  schema?: Schema;
+  schema?: APISchema;
   type?: string;
   xAEPResourceRef?: XAEPResourceRef;
 }
@@ -302,22 +302,22 @@ export interface XAEPResourceRef {
 export interface Response {
   description?: string;
   content?: Record<string, MediaType>;
-  schema?: Schema;
+  schema?: APISchema;
 }
 
 export interface RequestBody {
   description?: string;
   content: Record<string, MediaType>;
   required: boolean;
-  schema?: Schema;
+  schema?: APISchema;
 }
 
 export interface MediaType {
-  schema?: Schema;
+  schema?: APISchema;
 }
 
 export interface Components {
-  schemas: Record<string, Schema>;
+  schemas: Record<string, APISchema>;
 }
 
 export interface PathWithParams {
@@ -326,7 +326,7 @@ export interface PathWithParams {
     in: string;
     name: string;
     required: boolean;
-    schema: Schema;
+    schema: APISchema;
     xAEPResourceRef?: {
       resource: string;
     };

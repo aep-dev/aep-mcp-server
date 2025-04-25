@@ -1,10 +1,11 @@
 import nock from "nock";
 import axios from "axios";
 import { Client } from "./client.js";
+import { Resource } from "../api/types.js";
 
 describe("Client", () => {
   const baseUrl = "http://localhost:8081";
-  const client = new Client(axios.create());
+  const client = new Client(axios.create(), {});
 
   beforeEach(() => {
     nock.cleanAll();
@@ -12,12 +13,22 @@ describe("Client", () => {
 
   describe("create", () => {
     it("should create a resource without user specified ID", async () => {
-      const resource = {
-        CreateMethod: {
-          SupportsUserSettableCreate: false,
+      const resource: Resource = {
+        singular: "book",
+        plural: "books",
+        parents: [],
+        children: [],
+        patternElems: ["publishers", "{publisher}", "books", "{book}"],
+        schema: {
+          type: "object",
+          properties: {
+            price: { type: "string" }
+          }
         },
-        PatternElems: ["publishers", "{publisher}", "books", "{book}"],
-        Plural: "books",
+        createMethod: {
+          supportsUserSettableCreate: false
+        },
+        customMethods: []
       };
 
       const body = {
@@ -43,12 +54,23 @@ describe("Client", () => {
     });
 
     it("should create a resource with user specified ID", async () => {
-      const resource = {
-        CreateMethod: {
-          SupportsUserSettableCreate: true,
+      const resource: Resource = {
+        singular: "book",
+        plural: "books",
+        parents: [],
+        children: [],
+        patternElems: ["publishers", "{publisher}", "books", "{book}"],
+        schema: {
+          type: "object",
+          properties: {
+            price: { type: "string" },
+            id: { type: "string" }
+          }
         },
-        PatternElems: ["publishers", "{publisher}", "books", "{book}"],
-        Plural: "books",
+        createMethod: {
+          supportsUserSettableCreate: true
+        },
+        customMethods: []
       };
 
       const body = {
@@ -119,12 +141,24 @@ describe("Client", () => {
 
   describe("list", () => {
     it("should list resources", async () => {
-      const resource = {
-        CreateMethod: {
-          SupportsUserSettableCreate: false,
+      const resource: Resource = {
+        singular: "book",
+        plural: "books",
+        parents: [],
+        children: [],
+        patternElems: ["publishers", "{publisher}", "books", "{book}"],
+        schema: {
+          type: "object",
+          properties: {
+            price: { type: "string" }
+          }
         },
-        PatternElems: ["publishers", "{publisher}", "books", "{book}"],
-        Plural: "books",
+        listMethod: {
+          hasUnreachableResources: false,
+          supportsFilter: false,
+          supportsSkip: false
+        },
+        customMethods: []
       };
 
       const parameters = {

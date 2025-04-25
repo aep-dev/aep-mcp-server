@@ -3,7 +3,7 @@ import {
   Contact,
   OpenAPI,
   Resource,
-  Schema,
+  APISchema,
   ListMethod,
 } from "./types.js";
 import {
