@@ -121,10 +121,6 @@ export class Client {
       const response = await this.client.request(config);
       this.responseLoggingFunction(ctx, response);
 
-      if (response.status === 204) {
-        return {};
-      }
-
       const data = response.data;
       this.checkErrors(data);
       return data;
