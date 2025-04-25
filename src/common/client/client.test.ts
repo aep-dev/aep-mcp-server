@@ -5,7 +5,7 @@ import { Resource } from "../api/types.js";
 
 describe("Client", () => {
   const baseUrl = "http://localhost:8081";
-  const client = new Client(axios.create(), {});
+  const client = new Client(axios.create(), {}, () => {}, () => {});
 
   beforeEach(() => {
     nock.cleanAll();

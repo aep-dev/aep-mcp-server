@@ -10,11 +10,11 @@ export class Client {
   private requestLoggingFunction: RequestLoggingFunction;
   private responseLoggingFunction: ResponseLoggingFunction;
 
-  constructor(client: AxiosInstance, headers: Record<string, string>) {
+  constructor(client: AxiosInstance, headers: Record<string, string>, requestLoggingFunction: RequestLoggingFunction, responseLoggingFunction: ResponseLoggingFunction) {
     this.client = client;
     this.headers = headers;
-    this.requestLoggingFunction = () => {};
-    this.responseLoggingFunction = () => {};
+    this.requestLoggingFunction = requestLoggingFunction;
+    this.responseLoggingFunction = responseLoggingFunction;
   }
 
   async create(
@@ -90,9 +90,9 @@ export class Client {
     serverUrl: string,
     path: string,
     body: Record<string, any>
-  ): Promise<void> {
+  ): Promise<Record<string, any>> {
     const url = `${serverUrl}/${path.replace(/^\//, "")}`;
-    await this.makeRequest(ctx, "PATCH", url, body);
+    return this.makeRequest(ctx, "PATCH", url, body);
   }
 
   private async makeRequest(
@@ -101,6 +101,13 @@ export class Client {
     url: string,
     body?: Record<string, any>
   ): Promise<Record<string, any>> {
+    if (body) {
+      Object.keys(body).forEach(key => {
+        if (body[key] === null) {
+          delete body[key];
+        }
+      });
+    }
     const config: AxiosRequestConfig = {
       method,
       url,

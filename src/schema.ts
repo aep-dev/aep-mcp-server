@@ -1,67 +1,100 @@
-import { z } from "zod";
 import { Resource, APISchema } from "./common/api/types.js";
-import { OpenAPIImpl } from "./common/openapi/openapi.js";
+import { Tool } from "@modelcontextprotocol/sdk/types.js";
 
-export async function resourceToZodSchema(schema: APISchema, oas: OpenAPIImpl): Promise<Record<string, z.ZodTypeAny>> {
-  if (schema.$ref) {
-    const newSchema = await oas.dereferenceSchema(schema);
-    return resourceToZodSchema(newSchema, oas);
-  }
-
-  const properties: Record<string, z.ZodTypeAny> = {};
-  for (const [key, value] of Object.entries(schema.properties!)) {
-    properties[key] = await schemaToZodSchema(value, oas);
-  }
-  return properties;
+export interface FullTool extends Tool {
+  resource: Resource;
 }
 
-export async function schemaToZodSchema(
-  schema: APISchema,
-  oas: OpenAPIImpl
-): Promise<z.ZodTypeAny> {
-  if (schema.$ref) {
-    const newSchema = await oas.dereferenceSchema(schema);
-    return schemaToZodSchema(newSchema, oas);
-  }
-  switch (schema.type) {
-    case "boolean":
-      return z.boolean().nullish();
-    case "integer":
-      return z.number().nullish();
-    case "number":
-      return z.number().nullish();
-    case "string":
-      return z.string().nullish();
-    case "object":
-      const properties: Record<string, z.ZodTypeAny> = {};
-      for (const [key, value] of Object.entries(schema.properties || {})) {
-        properties[key] = await schemaToZodSchema(value, oas);
-      }
-      return z.object(properties).nullish();
-    case "array":
-      if (!schema.items) {
-        throw "array type with no items set";
-      }
-      const itemSchema = await schemaToZodSchema(schema.items, oas);
-      return itemSchema.array().nullish();
-
-    default:
-      console.warn(
-        `could not find item type ${schema.type} for schema ${JSON.stringify(
-          schema
-        )}`
-      );
-      return z.string().nullish();
-  }
-}
-
-export async function parameterSchema(resource: Resource, oas: OpenAPIImpl): Promise<Record<string, z.ZodString>> {
-  const properties: Record<string, z.ZodString> = {};
-  for (const pattern of resource.patternElems.slice(0, -1)) {
-    if (pattern.startsWith("{") && pattern.endsWith("}")) {
-      const key = pattern.slice(1, -1);
-      properties[key] = z.string();
+export function BuildCreateTool(resource: Resource, resourceName: string): FullTool {
+  const schema: {
+    type: "object";
+    properties: Record<string, unknown>;
+    required?: string[];
+  } = { 
+    type: "object" as const,
+    properties: { ...resource.schema.properties } as Record<string, unknown>
+  };
+  
+  // Process pattern elements
+  const patternElems = resource.patternElems.slice(0, -1);
+  const required: string[] = [];
+  
+  for (const elem of patternElems) {
+    if (elem.startsWith('{') && elem.endsWith('}')) {
+      const paramName = elem.slice(1, -1);
+      schema.properties = {
+        ...schema.properties,
+        [paramName]: { type: "string" }
+      };
+      required.push(paramName);
     }
   }
-  return properties;
+  
+  if (required.length > 0) {
+    schema.required = required;
+  }
+
+  return {
+    name: `create-${resourceName}`,
+    description: `Create a ${resourceName}`,
+    inputSchema: schema,
+    resource: resource,
+  };
+}
+
+export function BuildDeleteTool(resource: Resource, resourceName: string): FullTool {
+  const schema: {
+    type: "object";
+    properties: Record<string, unknown>;
+    required?: string[];
+  } = { 
+    type: "object" as const,
+    properties: {
+      path: { type: "string" }
+    },
+    required: ["path"]
+  };
+
+  return {
+    name: `delete-${resourceName}`,
+    description: `Delete a ${resourceName}`,
+    inputSchema: schema,
+    resource: resource,
+  };
+}
+
+export function BuildUpdateTool(resource: Resource, resourceName: string): FullTool {
+  const schema: {
+    type: "object";
+    properties: Record<string, unknown>;
+    required?: string[];
+  } = { 
+    type: "object" as const,
+    properties: { ...resource.schema.properties } as Record<string, unknown>
+  };
+
+  if (!schema.properties.path) {
+    schema.properties.path = { type: "string" };
+    schema.required = schema.required || [];
+  }
+
+  if (!schema.required || !schema.required.includes("path")) {
+    schema.required = schema.required || [];
+    schema.required.push("path");
+  }
+
+  return {
+    name: `update-${resourceName}`,
+    description: `Update a ${resourceName}`,
+    inputSchema: schema,
+    resource: resource,
+  };
+}
+
+export function BuildResource(resource: Resource, resourceName: string, serverUrl: string, prefix: string) {
+  return {
+    uriTemplate: `${serverUrl}/${resource.patternElems.join('/')}`,
+    name: resourceName,
+    mime: "text/plain",
+  }
 }
