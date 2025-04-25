@@ -18,6 +18,10 @@ export function BuildCreateTool(resource: Resource, resourceName: string): FullT
   // Process pattern elements
   const patternElems = resource.patternElems.slice(0, -1);
   const required: string[] = [];
+
+  if(schema.required == undefined) {
+    schema.required = []
+  }
   
   for (const elem of patternElems) {
     if (elem.startsWith('{') && elem.endsWith('}')) {
@@ -26,12 +30,19 @@ export function BuildCreateTool(resource: Resource, resourceName: string): FullT
         ...schema.properties,
         [paramName]: { type: "string" }
       };
-      required.push(paramName);
+      schema.required.push(paramName)
     }
   }
-  
-  if (required.length > 0) {
-    schema.required = required;
+
+  if(resource.createMethod?.supportsUserSettableCreate) {
+    schema.required.push('id');
+    if (schema.properties.id) {
+      schema.properties.id = { ...schema.properties.id, readOnly: false };
+    }
+  }
+
+  if (schema.required && schema.required.includes('path')) {
+    schema.required = schema.required.filter(req => req !== 'path');
   }
 
   return {
