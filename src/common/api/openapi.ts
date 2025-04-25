@@ -5,7 +5,7 @@ import {
   PathItem as OpenAPIPathItem,
   PathWithParams,
   Resource,
-  Schema,
+  APISchema,
   Operation,
   RequestBody,
   Parameter,
@@ -17,7 +17,7 @@ import { kebabToPascalCase } from "../cases/cases.js";
 export function convertToOpenAPI(api: API): OpenAPI {
   const paths: Record<string, OpenAPIPathItem> = {};
   const components = {
-    schemas: {} as Record<string, Schema>,
+    schemas: {} as Record<string, APISchema>,
   };
 
   for (const r of Object.values(api.resources)) {
@@ -63,7 +63,7 @@ export function convertToOpenAPI(api: API): OpenAPI {
 
       if (r.listMethod) {
         const listPath = `${pwp.pattern}${collection}`;
-        const responseProperties: Record<string, Schema> = {
+        const responseProperties: Record<string, APISchema> = {
           results: {
             type: "array",
             items: { $ref: schemaRef },
@@ -397,7 +397,7 @@ export interface PathItem {
       in: string;
       name: string;
       required: boolean;
-      schema: Schema;
+      schema: APISchema;
       xAEPResourceRef?: {
         resource: string;
       };
@@ -408,7 +408,7 @@ export interface PathItem {
         description: string;
         content?: {
           "application/json": {
-            schema: Schema;
+            schema: APISchema;
           };
         };
       }
@@ -419,7 +419,7 @@ export interface PathItem {
       in: string;
       name: string;
       required: boolean;
-      schema: Schema;
+      schema: APISchema;
       xAEPResourceRef?: {
         resource: string;
       };
@@ -428,7 +428,7 @@ export interface PathItem {
       required: boolean;
       content: {
         "application/json": {
-          schema: Schema;
+          schema: APISchema;
         };
       };
     };
@@ -438,7 +438,7 @@ export interface PathItem {
         description: string;
         content?: {
           "application/json": {
-            schema: Schema;
+            schema: APISchema;
           };
         };
       }
@@ -449,7 +449,7 @@ export interface PathItem {
       in: string;
       name: string;
       required: boolean;
-      schema: Schema;
+      schema: APISchema;
       xAEPResourceRef?: {
         resource: string;
       };
@@ -458,7 +458,7 @@ export interface PathItem {
       required: boolean;
       content: {
         "application/json": {
-          schema: Schema;
+          schema: APISchema;
         };
       };
     };
@@ -468,7 +468,7 @@ export interface PathItem {
         description: string;
         content?: {
           "application/json": {
-            schema: Schema;
+            schema: APISchema;
           };
         };
       }
@@ -479,7 +479,7 @@ export interface PathItem {
       in: string;
       name: string;
       required: boolean;
-      schema: Schema;
+      schema: APISchema;
       xAEPResourceRef?: {
         resource: string;
       };
@@ -490,7 +490,7 @@ export interface PathItem {
         description: string;
         content?: {
           "application/json": {
-            schema: Schema;
+            schema: APISchema;
           };
         };
       }
@@ -509,12 +509,12 @@ export function getPathItem(
   return openapi.paths[path];
 }
 
-export function getSchema(schema: Schema | undefined): Schema {
+export function getSchema(schema: APISchema | undefined): APISchema {
   if (!schema) {
     return { type: "object", properties: {} };
   }
   if ("$ref" in schema && schema.$ref) {
-    const refSchema: Schema = {
+    const refSchema: APISchema = {
       type: "object",
       properties: {},
       $ref: schema.$ref,
@@ -548,7 +548,7 @@ export function getParameters(
       in: string;
       name: string;
       required: boolean;
-      schema: Schema;
+      schema: APISchema;
       xAEPResourceRef?: {
         resource: string;
       };
@@ -582,7 +582,7 @@ export function getResponses(
         description: string;
         content?: {
           "application/json": {
-            schema: Schema;
+            schema: APISchema;
           };
         };
       }

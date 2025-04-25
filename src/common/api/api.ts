@@ -4,12 +4,13 @@ import {
   OpenAPI,
   PatternInfo,
   Resource,
-  Schema,
+  APISchema,
   Response as OpenAPIResponse,
   RequestBody as OpenAPIRequestBody,
   CustomMethod,
 } from "./types.js";
 import { pascalCaseToKebabCase } from "../cases/cases.js";
+import { Schema } from "../openapi/types.js";
 
 export class APIClient {
   private api: API;
@@ -41,7 +42,7 @@ export class APIClient {
         continue;
       }
 
-      let schemaRef: Schema | null = null;
+      let schemaRef: APISchema | null = null;
       const r: Partial<Resource> = {};
 
       if (patternInfo.customMethodName && patternInfo.isResourcePattern) {
@@ -224,7 +225,7 @@ export class APIClient {
     }
 
     // Add non-resource schemas to API's schemas
-    const schemas: Record<string, Schema> = {};
+    const schemas: Record<string, APISchema> = {};
     for (const [key, schema] of Object.entries(openAPI.components.schemas)) {
       if (!resourceBySingular[key]) {
         schemas[key] = schema;
@@ -250,6 +251,10 @@ export class APIClient {
       throw new Error(`Resource "${resource}" not found`);
     }
     return r;
+  }
+
+  serverUrl(): string {
+    return this.api.serverURL;
   }
 }
 
@@ -290,14 +295,14 @@ async function getOrPopulateResource(
 
   let resource: Resource;
 
-  if (schema.xAEPResource) {
+  if (schema["x-aep-resource"]) {
     resource = {
-      singular: schema.xAEPResource.singular,
-      plural: schema.xAEPResource.plural,
+      singular: schema["x-aep-resource"].singular!,
+      plural: schema["x-aep-resource"].plural!,
       // Parents will be set later on.
       parents: [],
       children: [],
-      patternElems: schema.xAEPResource.patterns[0].slice(1).split("/"),
+      patternElems: schema["x-aep-resource"].patterns![0].split("/").filter(Boolean),
       schema,
       customMethods: [],
     };
@@ -313,25 +318,27 @@ async function getOrPopulateResource(
     };
   }
 
-  if (schema.xAEPResource) {
-    for (const parentSingular of schema.xAEPResource.parents) {
-      const parentSchema = openAPI.components.schemas[parentSingular];
-      if (!parentSchema) {
-        throw new Error(
-          `Resource "${singular}" parent "${parentSingular}" not found`
+  if (schema) {
+    if (schema["x-aep-resource"] && schema["x-aep-resource"].parents) {
+      for (const parentSingular of schema["x-aep-resource"].parents) {
+        const parentSchema = openAPI.components.schemas[parentSingular];
+        if (!parentSchema) {
+          throw new Error(
+            `Resource "${singular}" parent "${parentSingular}" not found`
+          );
+        }
+
+        const parentResource = await getOrPopulateResource(
+          parentSingular,
+          [],
+          parentSchema,
+          resourceBySingular,
+          openAPI
         );
+
+        resource.parents.push(parentResource);
+        parentResource.children.push(resource);
       }
-
-      const parentResource = await getOrPopulateResource(
-        parentSingular,
-        [],
-        parentSchema,
-        resourceBySingular,
-        openAPI
-      );
-
-      resource.parents.push(parentResource);
-      parentResource.children.push(resource);
     }
   }
 
@@ -349,7 +356,7 @@ function getContact(contact?: Contact): Contact | null {
 function getSchemaFromResponse(
   response: OpenAPIResponse,
   openAPI: OpenAPI
-): Schema | null {
+): APISchema | null {
   if (openAPI.openapi === "2.0") {
     return response.schema || null;
   }
@@ -359,7 +366,7 @@ function getSchemaFromResponse(
 function getSchemaFromRequestBody(
   requestBody: OpenAPIRequestBody,
   openAPI: OpenAPI
-): Schema {
+): APISchema {
   if (openAPI.openapi === "2.0") {
     return requestBody.schema!;
   }
@@ -367,16 +374,16 @@ function getSchemaFromRequestBody(
 }
 
 async function dereferenceSchema(
-  schema: Schema,
+  schema: APISchema,
   openAPI: OpenAPI
-): Promise<Schema> {
+): Promise<APISchema> {
   if (!schema.$ref) {
     return schema;
   }
 
   const parts = schema.$ref.split("/");
   const key = parts[parts.length - 1];
-  let childSchema: Schema;
+  let childSchema: APISchema;
 
   if (openAPI.openapi === "2.0") {
     childSchema = openAPI.definitions![key];
