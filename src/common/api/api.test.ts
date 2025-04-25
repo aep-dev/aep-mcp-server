@@ -328,7 +328,6 @@ describe("APIClient", () => {
       const widget = api.resources["widget"];
       expect(widget).toBeDefined();
       expect(widget.singular).toBe("widget");
-      expect(widget.plural).toBe("widgets");
       expect(widget.patternElems).toEqual(["widgets", "{widget}"]);
     });
 

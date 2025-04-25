@@ -302,7 +302,7 @@ async function getOrPopulateResource(
       // Parents will be set later on.
       parents: [],
       children: [],
-      patternElems: schema["x-aep-resource"].patterns![0].split("/"),
+      patternElems: schema["x-aep-resource"].patterns![0].split("/").filter(Boolean),
       schema,
       customMethods: [],
     };
