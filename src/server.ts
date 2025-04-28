@@ -2,7 +2,7 @@ import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js"
 import { fetchOpenAPI, OpenAPIImpl } from "./common/openapi/openapi.js";
 import { APIClient } from "./common/api/api.js";
 import { OpenAPI as OpenAPIType, Resource } from "./common/api/types.js";
-import { BuildCreateTool, BuildDeleteTool, BuildResource, FullTool } from "./schema.js";
+import { BuildCreateTool, BuildDeleteTool, BuildResource, BuildUpdateTool, FullTool } from "./schema.js";
 import { z } from "zod";
 
 import axios from "axios";
@@ -103,6 +103,7 @@ async function main() {
   for (const [resourceName, resource] of Object.entries(resources)) {
     tools.push(BuildCreateTool(resource, resourceName));
     tools.push(BuildDeleteTool(resource, resourceName));
+    tools.push(BuildUpdateTool(resource, resourceName));
     resourceList.push(BuildResource(resource, resourceName, a.serverUrl(), prefix))
   }
 
