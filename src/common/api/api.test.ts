@@ -2,6 +2,8 @@
 import { API, Contact, OpenAPI, Resource, APISchema } from "./types.js";
 import { APIClient } from "./api.js";
 import { fetchOpenAPI, OpenAPIImpl } from "../openapi/openapi.js";
+import yargs from "yargs";
+import { hideBin } from "yargs/helpers";
 
 const basicOpenAPI: OpenAPI = {
   openapi: "3.1.0",
