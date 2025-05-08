@@ -16,3 +16,11 @@ Alternatively, if the package is installed globally or published to npm, you can
 npx . --openapi-url="http://localhost:8081/openapi.json"
 ```
 
+## Inspecting the resources
+
+The `@modelcontextprotocol/inspector` can be used:
+
+```bash
+npx @modelcontextprotocol/inspector node src/bin.js --openapi-url="http://localhost:8081/openapi.json"
+```
+

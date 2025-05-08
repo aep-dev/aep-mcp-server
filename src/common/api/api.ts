@@ -11,6 +11,7 @@ import {
 } from "./types.js";
 import { pascalCaseToKebabCase } from "../cases/cases.js";
 import { Schema } from "../openapi/types.js";
+import { logger } from "../../logger.js";
 
 export class APIClient {
   private api: API;
@@ -379,6 +380,19 @@ async function dereferenceSchema(
 ): Promise<APISchema> {
   if (!schema.$ref) {
     return schema;
+  }
+
+  if (schema.$ref.startsWith("http://") || schema.$ref.startsWith("https://")) {
+    logger.debug(
+      `Fetching external schema from ${schema.$ref}...`);
+    const response = await fetch(schema.$ref);
+    if (!response.ok) {
+      throw new Error(`Failed to fetch external schema: ${schema.$ref}`);
+    }
+    const externalSchema = await response.json();
+    logger.debug(
+      `Final schema fetched from ${schema.$ref}: ${JSON.stringify(externalSchema)}`);
+    return dereferenceSchema(externalSchema, openAPI);
   }
 
   const parts = schema.$ref.split("/");
