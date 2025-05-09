@@ -9,28 +9,14 @@ import axios from "axios";
 import { Client } from "./common/client/client.js";
 import { Server } from "@modelcontextprotocol/sdk/server/index.js";
 import { CallToolRequestSchema, ListResourcesRequestSchema, ListResourceTemplatesRequestSchema, ListToolsRequestSchema, ReadResourceRequestSchema } from "@modelcontextprotocol/sdk/types.js";
+import { parseArguments } from "./cli.js";
 
+export async function main() {
+  const argv = parseArguments(process.argv.slice(2));
+  const openapiUrl = argv["openapi-url"];
+  const prefix = argv.prefix;
+  const headers: Record<string, string> = JSON.parse(argv.headers);
 
-type RequestHandlerExtra = {
-  [key: string]: unknown;
-};
-
-type ResponseContent = {
-  type: "text";
-  text: string;
-};
-
-type Response = {
-  content: ResponseContent[];
-  _meta?: Record<string, unknown>;
-  isError?: boolean;
-};
-
-const openapiUrl =
-  "https://raw.githubusercontent.com/Roblox/creator-docs/refs/heads/main/content/en-us/reference/cloud/cloud.docs.json";
-const prefix = "/cloud/v2";
-
-async function main() {
   const openapi = await fetchOpenAPI(openapiUrl);
   const oas = new OpenAPIImpl(openapi as OpenAPIType);
 
@@ -47,10 +33,6 @@ async function main() {
       resources: {}
     },
   });
-  const headers: Record<string, string> = {
-    "Content-Type": "application/json",
-    "x-api-key": process.env.API_KEY!,
-  };
 
   // Create an axios instance with default configuration
   const axiosInstance = axios.create({
@@ -189,5 +171,3 @@ async function main() {
   const transport = new StdioServerTransport();
   await server.connect(transport);
 }
-
-main();
