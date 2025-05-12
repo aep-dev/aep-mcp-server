@@ -8,6 +8,7 @@ To run the server locally, use the following command:
 
 ```bash
 npm run serve --openapi-url="http://localhost:8081/openapi.json"
+npm run serve --openapi-url="https://raw.githubusercontent.com/Roblox/creator-docs/refs/heads/main/content/en-us/reference/cloud/cloud.docs.json" --prefix="/cloud/v2"
 ```
 
 Alternatively, if the package is installed globally or published to npm, you can run it directly using:

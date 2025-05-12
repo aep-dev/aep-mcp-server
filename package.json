@@ -4,7 +4,7 @@
   "description": "A MCP server for used with AEP-compliant APIs.",
   "main": "server.ts",
   "type": "module",
-  "bin": "./src/bin.js",
+  "bin": "tsc && ./src/bin.js",
   "scripts": {
     "build": "tsc",
     "serve": "tsc && ./src/bin.js",

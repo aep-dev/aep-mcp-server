@@ -10,6 +10,8 @@ export var logger = winston.createLogger({
     ),
     transports: [
         new winston.transports.Console({
+            // logging to stdout will break the mcp server, so
+            // use stderr instead (which it a better practice anyway)
             stderrLevels: ["error", "warn", "info"],
             debugStdout: false,
         }),
