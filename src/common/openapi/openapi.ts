@@ -70,8 +70,12 @@ export class OpenAPIImpl {
 }
 
 export async function fetchOpenAPI(pathOrURL: string): Promise<OpenAPI> {
-  const body = await readFileOrURL(pathOrURL);
-  return parseYAML(body);
+  try {
+    const body = await readFileOrURL(pathOrURL);
+    return parseYAML(body);
+  } catch (error) {
+    throw new Error(`Failed to fetch or parse OpenAPI schema from ${pathOrURL}: ${error instanceof Error ? error.message : String(error)}`);
+  }
 }
 
 async function readFileOrURL(pathOrURL: string): Promise<string> {

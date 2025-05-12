@@ -10,8 +10,12 @@ import { Client } from "./common/client/client.js";
 import { Server } from "@modelcontextprotocol/sdk/server/index.js";
 import { CallToolRequestSchema, ListResourcesRequestSchema, ListResourceTemplatesRequestSchema, ListToolsRequestSchema, ReadResourceRequestSchema } from "@modelcontextprotocol/sdk/types.js";
 import { parseArguments } from "./cli.js";
+import { logger } from "./logger.js";
 
 export async function main() {
+
+  logger.info("Server initialization started");
+
   const argv = parseArguments(process.argv.slice(2));
   const openapiUrl = argv["openapi-url"];
   const prefix = argv.prefix;
@@ -89,9 +93,12 @@ export async function main() {
     resourceList.push(BuildResource(resource, resourceName, a.serverUrl(), prefix))
   }
 
-  server.setRequestHandler(ListToolsRequestSchema, async () => ({
-    tools: tools
-  }));
+  server.setRequestHandler(ListToolsRequestSchema, async () => {
+    // logger.info("Received list tools request");
+    return {
+      tools: tools
+    };
+  });
 
   server.setRequestHandler(ListResourceTemplatesRequestSchema, async () => ({
     resourceTemplates: resourceList
@@ -169,5 +176,6 @@ export async function main() {
   })
 
   const transport = new StdioServerTransport();
+  logger.info("Starting server connection...");
   await server.connect(transport);
 }
