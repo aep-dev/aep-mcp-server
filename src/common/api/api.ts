@@ -30,7 +30,7 @@ export class APIClient {
         "Unable to detect OAS openapi. Please add an openapi field or a openapi field"
       );
     }
-
+    logger.info(`reading openapi file: ${openAPI.openapi}`);
     const resourceBySingular: Record<string, Resource> = {};
     const customMethodsByPattern: Record<string, CustomMethod[]> = {};
 

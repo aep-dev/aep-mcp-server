@@ -1,28 +1,24 @@
 import { Resource, APISchema } from "./common/api/types.js";
 import { Tool } from "@modelcontextprotocol/sdk/types.js";
 
-export interface FullTool extends Tool {
-  resource: Resource;
-}
-
-export function BuildCreateTool(resource: Resource, resourceName: string): FullTool {
+export function BuildCreateTool(resource: Resource, resourceName: string): Tool {
   const schema: {
     type: "object";
     properties: Record<string, unknown>;
     required?: string[];
-  } = { 
+  } = {
     type: "object" as const,
     properties: { ...resource.schema.properties } as Record<string, unknown>
   };
-  
+
   // Process pattern elements
   const patternElems = resource.patternElems.slice(0, -1);
   const required: string[] = [];
 
-  if(schema.required == undefined) {
+  if (schema.required == undefined) {
     schema.required = []
   }
-  
+
   for (const elem of patternElems) {
     if (elem.startsWith('{') && elem.endsWith('}')) {
       const paramName = elem.slice(1, -1);
@@ -34,7 +30,7 @@ export function BuildCreateTool(resource: Resource, resourceName: string): FullT
     }
   }
 
-  if(resource.createMethod?.supportsUserSettableCreate) {
+  if (resource.createMethod?.supportsUserSettableCreate) {
     schema.required.push('id');
     if (schema.properties.id) {
       schema.properties.id = { ...schema.properties.id, readOnly: false };
@@ -48,17 +44,16 @@ export function BuildCreateTool(resource: Resource, resourceName: string): FullT
   return {
     name: `create-${resourceName}`,
     description: `Create a ${resourceName}`,
-    inputSchema: schema,
-    resource: resource,
+    inputSchema: schema
   };
 }
 
-export function BuildDeleteTool(resource: Resource, resourceName: string): FullTool {
+export function BuildDeleteTool(resource: Resource, resourceName: string): Tool {
   const schema: {
     type: "object";
     properties: Record<string, unknown>;
     required?: string[];
-  } = { 
+  } = {
     type: "object" as const,
     properties: {
       path: { type: "string" }
@@ -70,16 +65,15 @@ export function BuildDeleteTool(resource: Resource, resourceName: string): FullT
     name: `delete-${resourceName}`,
     description: `Delete a ${resourceName}`,
     inputSchema: schema,
-    resource: resource,
   };
 }
 
-export function BuildUpdateTool(resource: Resource, resourceName: string): FullTool {
+export function BuildUpdateTool(resource: Resource, resourceName: string): Tool {
   const schema: {
     type: "object";
     properties: Record<string, unknown>;
     required?: string[];
-  } = { 
+  } = {
     type: "object" as const,
     properties: { ...resource.schema.properties } as Record<string, unknown>
   };
@@ -98,7 +92,6 @@ export function BuildUpdateTool(resource: Resource, resourceName: string): FullT
     name: `update-${resourceName}`,
     description: `Update a ${resourceName}`,
     inputSchema: schema,
-    resource: resource,
   };
 }
 

@@ -2,15 +2,23 @@ import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js"
 import { fetchOpenAPI, OpenAPIImpl } from "./common/openapi/openapi.js";
 import { APIClient } from "./common/api/api.js";
 import { OpenAPI as OpenAPIType, Resource } from "./common/api/types.js";
-import { BuildCreateTool, BuildDeleteTool, BuildResource, BuildUpdateTool, FullTool } from "./schema.js";
-import { z } from "zod";
+import { BuildCreateTool, BuildDeleteTool, BuildResource, BuildUpdateTool } from "./schema.js";
 
 import axios from "axios";
 import { Client } from "./common/client/client.js";
 import { Server } from "@modelcontextprotocol/sdk/server/index.js";
-import { CallToolRequestSchema, ListResourcesRequestSchema, ListResourceTemplatesRequestSchema, ListToolsRequestSchema, ReadResourceRequestSchema } from "@modelcontextprotocol/sdk/types.js";
+import {
+  CallToolRequestSchema,
+  ListResourcesRequestSchema,
+  ListResourceTemplatesRequestSchema,
+  ListToolsRequestSchema,
+  ListPromptsRequestSchema,
+  ReadResourceRequestSchema,
+  Tool
+} from "@modelcontextprotocol/sdk/types.js";
 import { parseArguments } from "./cli.js";
 import { logger } from "./logger.js";
+import { inspect } from "util";
 
 export async function main() {
 
@@ -84,21 +92,28 @@ export async function main() {
 
   // Create sample tool for MCP.
   const resources = a.resources();
-  const tools: FullTool[] = []
+  const tools: Tool[] = []
   const resourceList: Array<{ uriTemplate: string; name: string; mime: string }> = []
   for (const [resourceName, resource] of Object.entries(resources)) {
+    logger.info(`Processing resource: ${resourceName}`);
     tools.push(BuildCreateTool(resource, resourceName));
     tools.push(BuildDeleteTool(resource, resourceName));
     tools.push(BuildUpdateTool(resource, resourceName));
     resourceList.push(BuildResource(resource, resourceName, a.serverUrl(), prefix))
   }
 
-  server.setRequestHandler(ListToolsRequestSchema, async () => {
-    // logger.info("Received list tools request");
+  // empty handlers
+  server.setRequestHandler(ListResourcesRequestSchema, async () => {
     return {
-      tools: tools
+      resources: []
     };
   });
+
+  // functional handlers
+
+  server.setRequestHandler(ListToolsRequestSchema, async () => ({
+    tools: tools
+  }));
 
   server.setRequestHandler(ListResourceTemplatesRequestSchema, async () => ({
     resourceTemplates: resourceList
@@ -120,7 +135,6 @@ export async function main() {
     };
   });
 
-
   server.setRequestHandler(CallToolRequestSchema, async (request: any): Promise<any> => {
     try {
       const toolName = request.params.name;
@@ -133,9 +147,11 @@ export async function main() {
         throw new Error(`Matching tool not found: ${toolName}`);
       }
       if (matchingTool.name.startsWith("create")) {
-        const parameters = fetchParameters(request.params.arguments!, matchingTool.resource)
-        const body = fetchRequestBody(request.params.arguments!, matchingTool.resource)
-        const resp = await client.create({}, matchingTool.resource, a.serverUrl(), body, parameters)
+        const resourceSingular = matchingTool.name.split("-")[1];
+        const resource = a.resources()[resourceSingular];
+        const parameters = fetchParameters(request.params.arguments!, resource)
+        const body = fetchRequestBody(request.params.arguments!, resource)
+        const resp = await client.create({}, resource, a.serverUrl(), body, parameters)
         return {
           content: [{
             type: "text",
