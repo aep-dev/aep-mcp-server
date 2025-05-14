@@ -2,7 +2,7 @@ import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js"
 import { fetchOpenAPI, OpenAPIImpl } from "./common/openapi/openapi.js";
 import { APIClient } from "./common/api/api.js";
 import { OpenAPI as OpenAPIType, Resource } from "./common/api/types.js";
-import { BuildCreateTool, BuildDeleteTool, BuildResource, BuildUpdateTool } from "./schema.js";
+import { BuildCreateTool, BuildDeleteTool, BuildResource, BuildUpdateTool, BuildListTool, BuildGetTool } from "./schema.js";
 
 import axios from "axios";
 import { Client } from "./common/client/client.js";
@@ -99,7 +99,9 @@ export async function main() {
     tools.push(BuildCreateTool(resource, resourceName));
     tools.push(BuildDeleteTool(resource, resourceName));
     tools.push(BuildUpdateTool(resource, resourceName));
-    resourceList.push(BuildResource(resource, resourceName, a.serverUrl(), prefix))
+    tools.push(BuildListTool(resource, resourceName));
+    tools.push(BuildGetTool(resource, resourceName));
+    resourceList.push(BuildResource(resource, resourceName, a.serverUrl(), prefix));
   }
 
   // empty handlers
@@ -172,6 +174,27 @@ export async function main() {
       } else if (matchingTool.name.startsWith("update")) {
         const path = request.params.arguments!["path"]
         const resp = await client.update({}, a.serverUrl(), path, request.params.arguments!)
+        return {
+          content: [{
+            type: "text",
+            text: JSON.stringify(resp)
+          }],
+          isError: false
+        };
+      } else if (matchingTool.name.startsWith("list")) {
+        const resourceSingular = matchingTool.name.split("-")[1];
+        const resource = a.resources()[resourceSingular];
+        const resp = await client.list({}, resource, a.serverUrl(), request.params.arguments!);
+        return {
+          content: [{
+            type: "text",
+            text: JSON.stringify(resp)
+          }],
+          isError: false
+        };
+      } else if (matchingTool.name.startsWith("get")) {
+        const path = request.params.arguments!["path"];
+        const resp = await client.get({}, a.serverUrl(), path);
         return {
           content: [{
             type: "text",

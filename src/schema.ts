@@ -95,6 +95,46 @@ export function BuildUpdateTool(resource: Resource, resourceName: string): Tool 
   };
 }
 
+export function BuildListTool(resource: Resource, resourceName: string): Tool {
+  // get all path params except the last one, which is the resource name. For list
+  // we ignore it.
+  const parentFieldNames = resource.patternElems.filter((elem) => elem.startsWith("{")).slice(0, -1);
+  // strip the braces from the field names
+  for (let i = 0; i < parentFieldNames.length; i++) {
+    parentFieldNames[i] = parentFieldNames[i].slice(1, -1);
+  }
+  const properties: Record<string, unknown> = {};
+  // iterate parentFieldNames
+  for (const name of parentFieldNames) {
+    properties[name] = {
+      type: "string",
+      description: `The ${name} to filter the list of ${resourceName} resources`,
+    };
+  }
+  return {
+    name: `list-${resourceName}`,
+    description: `List all ${resourceName} resources`,
+    inputSchema: {
+      type: "object",
+      properties: properties,
+    },
+  };
+}
+
+export function BuildGetTool(resource: Resource, resourceName: string): Tool {
+  return {
+    name: `get-${resourceName}`,
+    description: `Get details of a specific ${resourceName}`,
+    inputSchema: {
+      type: "object",
+      properties: {
+        path: { type: "string" },
+      },
+      required: ["path"],
+    },
+  };
+}
+
 export function BuildResource(resource: Resource, resourceName: string, serverUrl: string, prefix: string) {
   return {
     uriTemplate: `${serverUrl}/${resource.patternElems.join('/')}`,
